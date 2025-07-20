@@ -1,17 +1,3 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 
 import { useEffect } from "react";
 
@@ -42,6 +28,7 @@ import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Soft UI Dashboard React context
 import { useSoftUIController, setMiniSidenav } from "context";
+import axiosInstance from "axiosConfig";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useSoftUIController();
@@ -50,6 +37,26 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const { pathname } = location;
   const collapseName = pathname.split("/").slice(1)[0];
 
+  const logout = async () => {
+    const refresh = localStorage.getItem("refresh");
+    if (!refresh) {
+      console.error("Refresh token not found!");
+      return;
+    }
+  
+    try {
+      await axiosInstance.post("api/logout/", { refresh });
+  
+      // Remove tokens
+      localStorage.removeItem("token");
+      localStorage.removeItem("refresh");
+  
+      // Redirect to login
+      window.location.href = "/kirish";
+    } catch (error) {
+      console.error("Logout failed:", error.response?.data || error.message);
+    }
+  };
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   useEffect(() => {
@@ -144,7 +151,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           </SoftTypography>
         </SoftBox>
         <SoftBox component={NavLink} to="/" display="flex" alignItems="center">
-          {brand && <SoftBox component="img" src={brand} alt="Soft UI Logo" width="2rem" />}
+          {brand && <SoftBox component="img" src={brand} alt="Soft UI Logo" width="4rem" />}
           <SoftBox
             width={!brandName && "100%"}
             sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
@@ -160,17 +167,15 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       <SoftBox pt={2} my={2} mx={2} mt="auto">
         <SidenavCard />
         <SoftBox mt={2}>
-          <SoftButton
-            component="a"
-            href="https://creative-tim.com/product/soft-ui-dashboard-pro-react"
-            target="_blank"
-            rel="noreferrer"
-            variant="gradient"
-            color={color}
-            fullWidth
-          >
-            upgrade to pro
-          </SoftButton>
+        <SoftButton
+  variant="gradient"
+  color={color}
+  fullWidth
+  onClick={logout}
+>
+  Chiqish
+</SoftButton>
+
         </SoftBox>
       </SoftBox>
     </SidenavRoot>

@@ -1,17 +1,4 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
 
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -51,24 +38,24 @@ function SidenavCard() {
           </Icon>
         </SoftBox>
         <SoftBox lineHeight={1}>
-          <SoftTypography variant="h6" color="white">
-            Need help?
+          <SoftTypography variant="h6" color="white" mb={1}>
+            Yordam kerakmi ?
           </SoftTypography>
           <SoftBox mb={1.825} mt={-1}>
-            <SoftTypography variant="caption" color="white" fontWeight="medium">
-              Please check our docs
-            </SoftTypography>
+          <SoftTypography variant="caption" color="white" fontWeight="medium">
+            Qo&apos;llanma bilan tanishib chiqing
+          </SoftTypography>
+
           </SoftBox>
           <SoftButton
             component={Link}
-            href="https://www.creative-tim.com/learning-lab/react/quick-start/soft-ui-dashboard/"
-            target="_blank"
+            href=""
             rel="noreferrer"
             size="small"
             color="white"
             fullWidth
           >
-            documentation
+            qo&apos;llanma
           </SoftButton>
         </SoftBox>
       </CardContent>

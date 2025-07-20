@@ -1,17 +1,4 @@
-/**
-=========================================================
-* Soft UI Dashboard React - v4.0.1
-=========================================================
 
-* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 
 // @mui material components
 import Card from "@mui/material/Card";
@@ -22,7 +9,7 @@ import SoftBox from "components/SoftBox";
 import SoftTypography from "components/SoftTypography";
 
 // Images
-import ivancik from "assets/images/ivancik.jpg";
+import ivancik from "assets/images/service.jpg";
 
 function WorkWithTheRockets() {
   return (
@@ -38,22 +25,22 @@ function WorkWithTheRockets() {
           sx={{
             backgroundImage: ({ functions: { linearGradient, rgba }, palette: { gradients } }) =>
               `${linearGradient(
-                rgba(gradients.dark.main, 0.8),
-                rgba(gradients.dark.state, 0.8)
+                rgba(gradients.dark.main, 0.4),
+                rgba(gradients.dark.state, 0.4)
               )}, url(${ivancik})`,
             backgroundSize: "cover",
           }}
         >
           <SoftBox mb={3} pt={1}>
             <SoftTypography variant="h5" color="white" fontWeight="bold">
-              Work with the rockets
+            Samaradorlik uchun nazorat
             </SoftTypography>
           </SoftBox>
           <SoftBox mb={2}>
-            <SoftTypography variant="body2" color="white">
-              Wealth creation is an evolutionarily recent positive-sum game. It is all about who
-              take the opportunity first.
-            </SoftTypography>
+            <SoftTypography variant="body2" color="white">Jihozlarning o‘z vaqtida va muntazam texnik ko‘rikdan o‘tkazilishi — ularning nosoz
+              holatga kelib qolishining oldini oladi. Bu esa korxona samaradorligini oshirib, vaqt va mablag‘ tejalishiga xizmat qiladi.
+
+</SoftTypography>
           </SoftBox>
           <SoftTypography
             component="a"
@@ -78,10 +65,7 @@ function WorkWithTheRockets() {
                 transform: `translate(6px, -0.5px)`,
               },
             }}
-          >
-            Read More
-            <Icon sx={{ fontWeight: "bold" }}>arrow_forward</Icon>
-          </SoftTypography>
+          ></SoftTypography>
         </SoftBox>
       </SoftBox>
     </Card>

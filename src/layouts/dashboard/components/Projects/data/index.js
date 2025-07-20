@@ -47,10 +47,10 @@ export default function data() {
 
   return {
     columns: [
-      { name: "companies", align: "left" },
-      { name: "members", align: "left" },
-      { name: "budget", align: "center" },
-      { name: "completion", align: "center" },
+      { name: "Uskuna Turi", align: "left" },
+      { name: "Mas’ul xodim", align: "left" },
+      { name: "Taxminiy vaqt", align: "center" },
+      { name: "Ta’mir Holati", align: "center" },
     ],
 
     rows: [
