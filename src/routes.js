@@ -1,4 +1,3 @@
-
 import Dashboard from "layouts/dashboard";
 import Billing from "layouts/billing";
 import Profile from "layouts/profile";
@@ -11,7 +10,6 @@ import Settings from "examples/Icons/Settings";
 import Document from "examples/Icons/Document";
 import SpaceShip from "examples/Icons/SpaceShip";
 import CustomerSupport from "examples/Icons/CustomerSupport";
-import CreditCard from "examples/Icons/CreditCard";
 import Cube from "examples/Icons/Cube";
 import { Compress, Engineering } from "@mui/icons-material";
 import LatheMachineTables from "layouts/tables/latheMachine";
@@ -21,17 +19,18 @@ import PressureVesselTables from "layouts/tables/pressureVessel";
 import WeldingEquipmentTables from "layouts/tables/weldingEquipment";
 import MaintenanceScheduleTables from "./layouts/tables/maintenanceSchedule";
 import ProtectedRoute from "ProtectedRoute";
+const userRole = localStorage.getItem("userRole"); // Get current user's role
 
 const routes = [
-  {
+ ...(userRole === "Superuser" ? [{
     type: "collapse",
     name: "Boshqaruv paneli",
     key: "dashboard",
     route: "/dashboard",
     icon: <Shop size="12px" />,
-    component: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+    component: <ProtectedRoute requiredRole="Superuser"><Dashboard /></ProtectedRoute>,
     noCollapse: true,
-  },
+  }] : []),
   {
     type: "collapse",
     name: "Isitish qozonlari",
@@ -50,7 +49,7 @@ const routes = [
     component: <ProtectedRoute><LatheMachineTables /></ProtectedRoute>,
     noCollapse: true,
   },
-  
+
   {
     type: "collapse",
     name: "Yuk ko'tarish kranlari",

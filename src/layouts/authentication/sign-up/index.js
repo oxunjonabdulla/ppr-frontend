@@ -16,6 +16,7 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 // Images
 import curved6 from "assets/images/curved-images/curved14.jpg";
 import axios from "axios";
+import axiosInstance from "../../../axiosConfig";
 
 function SignUp() {
   const [agreement, setAgremment] = useState(true);
@@ -37,14 +38,29 @@ function SignUp() {
         });
 
       const access = response.data.access;   // ✅ Correct
-      console.log('access : ', access);
+      console.log("access : ", access);
       const refresh = response.data.refresh; // optional
-      
-
       localStorage.setItem("token", access); // ✅ Store access token
       localStorage.setItem("refresh", refresh); // optional
+      const profileResponse = await axiosInstance.get(
+        "https://api.ppr.vchdqarshi.uz/api/user/me/",
+        {
+          headers: {
+            Authorization: `Bearer ${access}`, // Use the fresh token directly
+          },
+        },
+      );
       // Redirect to dashboard page
-      window.location.href = "/dashboard";
+
+      const user = profileResponse.data;
+
+      localStorage.setItem("userRole", user.role);
+
+      if (user.role === "Superuser") {
+        window.location.href = "/dashboard";
+      } else {
+        window.location.href = "/kabinet"; // Redirect non-admins to profile
+      }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       setError(error.response?.data?.detail || "JSHSHIR yoki parol noto‘g‘ri.");

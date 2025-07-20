@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const [token, setToken] = useState(null);
-  const userRole = localStorage.getItem("userRole"); // You'll need to store this during login
   const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/kirish" replace />;
   }
 
-  if (requiredRole && userRole !== requiredRole) {
+   if (requiredRole && userRole !== requiredRole) {
     return <Navigate to="/kabinet" replace />;
   }
 
