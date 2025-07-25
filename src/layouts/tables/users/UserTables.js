@@ -39,7 +39,7 @@ function UserTables() {
 
     "ID raqami": item.id,
     "Rasmi": item.image ? (
-      <ImageModal src={`https://api.ppr.vchdqarshi.uz/api/${item.image}`} alt="Foydalanuvchi rasmi" />
+      <ImageModal src={`https://api.ppr.vchdqarshi.uz/${item.image}`} alt="Foydalanuvchi rasmi" />
     ) : "-",
     "Ism Familiya": item.name || "-",
     "Foydalanuvchi nomi": item.username || "-",

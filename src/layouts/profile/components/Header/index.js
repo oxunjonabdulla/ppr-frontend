@@ -24,7 +24,7 @@ function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [user, setUser] = useState(null);
-  const userImageUrl = `https://ppr.vchdqarshi.uz${user?.image}` || "";
+  const userImageUrl = `https://api.ppr.vchdqarshi.uz/${user?.image}` || "";
   console.log("userImageUrl : ", userImageUrl);
   useEffect(() => {
     axiosInstance.get("https://api.ppr.vchdqarshi.uz/api/user/me/")
@@ -87,13 +87,19 @@ function Header() {
       >
         <Grid container spacing={3} alignItems="center">
           <Grid item>
-            <SoftAvatar
-              src={userImageUrl}
-              alt="profile-image"
-              variant="rounded"
-              size="xl"
-              shadow="sm"
-            />
+           <SoftAvatar
+  src={userImageUrl}
+  alt="profile-image"
+  variant="rounded"
+  size="xl"
+  shadow="sm"
+  sx={{
+    width: '100px', // or your desired box size
+    height: '100px',
+    objectFit: 'cover' // this is the key line
+  }}
+/>
+
           </Grid>
           <Grid item>
             <SoftBox height="100%" mt={0.5} lineHeight={1}>
