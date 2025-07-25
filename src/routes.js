@@ -19,7 +19,13 @@ import PressureVesselTables from "layouts/tables/pressureVessel";
 import WeldingEquipmentTables from "layouts/tables/weldingEquipment";
 import MaintenanceScheduleTables from "./layouts/tables/maintenanceSchedule";
 import ProtectedRoute from "ProtectedRoute";
+import UserTables from "./layouts/tables/users/UserTables";
 const userRole = localStorage.getItem("userRole"); // Get current user's role
+import GroupIcon from "@mui/icons-material/Group";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import ProfileIcon from "./examples/Icons/Profile";
+import UsersIcon from "./examples/Icons/Users";
+
 
 const routes = [
  ...(userRole === "Superuser" ? [{
@@ -103,8 +109,16 @@ const routes = [
     name: "Kabinet",
     key: "kabinet",
     route: "/kabinet",
-    icon: <CustomerSupport size="12px" />,
+    icon: <ProfileIcon size="12px" />,
     component: <ProtectedRoute><Profile /></ProtectedRoute>,
+    noCollapse: true,
+  },{
+    type: "collapse",
+    name: "Xodimlar",
+    key: "users",
+    route: "/users",
+    icon: <UsersIcon  size="12px" />,
+    component: <ProtectedRoute><UserTables /></ProtectedRoute>,
     noCollapse: true,
   },
 

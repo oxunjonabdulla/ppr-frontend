@@ -34,7 +34,7 @@ function Overview() {
       <Header />
       <SoftBox mt={5} mb={3}>
         <Grid container spacing={3}>
-          <Grid item xs={8}>
+          <Grid item xs={12}>
             <ProfileInfoCard
               title="Hisob ma'lumotlari"
               description={
@@ -47,17 +47,13 @@ function Overview() {
               }
               info={{
                 ism: user?.name || "-",
-                elektronManzil: user?.email || "-",
+                telefonRaqam: user?.phone_number || "-",
                 rol: user?.role || "-",
-                korxona: user?.company || "-", // ✅ fallback if null
+                korxona: user?.company.name || "-", // ✅ fallback if null
               }}
-              action={{ route: "", tooltip: "Ma'lumotlarni o'zgartirish" }}
             />
 
 
-          </Grid>
-          <Grid item xs={12} xl={4}>
-            <ProfilesList title="Foydalanuvchilar" profiles={profilesListData} />
           </Grid>
           <Grid item xs={12}>
             <LoginLogTable />

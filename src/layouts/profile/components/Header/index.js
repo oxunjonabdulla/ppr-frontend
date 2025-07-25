@@ -24,7 +24,8 @@ function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
   const [user, setUser] = useState(null);
-
+  const userImageUrl = `https://ppr.vchdqarshi.uz${user?.image}` || "";
+  console.log("userImageUrl : ", userImageUrl);
   useEffect(() => {
     axiosInstance.get("https://api.ppr.vchdqarshi.uz/api/user/me/")
       .then((res) => setUser(res.data));
@@ -87,7 +88,7 @@ function Header() {
         <Grid container spacing={3} alignItems="center">
           <Grid item>
             <SoftAvatar
-              src={user?.image}
+              src={userImageUrl}
               alt="profile-image"
               variant="rounded"
               size="xl"
