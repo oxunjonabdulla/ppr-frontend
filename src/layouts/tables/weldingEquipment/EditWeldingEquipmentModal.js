@@ -1,0 +1,221 @@
+// EditWeldingEquipmentModal.jsx
+
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import Modal from "@mui/material/Modal";
+import SoftTypography from "components/SoftTypography";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import axiosInstance from "../../../axiosConfig";
+import "layouts/tables/style.css";
+
+function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
+  const [previewImage, setPreviewImage] = useState(null);
+  const [formData, setFormData] = useState({
+    company_name: "",
+    detail_name: "",
+    manufacture_date: "",
+    factory_number: "",
+    registration_number: "",
+    installation_location: "",
+    technical_condition: "working",
+    is_conserved: false,
+    conservation_reason: "",
+    responsible_person: 0,
+    author: 0,
+    image: null,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        ...data,
+        manufacture_date: data.manufacture_date || "",
+        image: null, // for editing new image
+      });
+      setPreviewImage(data.image || null);
+    }
+  }, [data]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const formDataToSend = new FormData();
+
+      Object.keys(formData).forEach((key) => {
+        if (key === "manufacture_date" && formData[key]) {
+          formDataToSend.append(key, new Date(formData[key]).toISOString().split("T")[0]);
+        } else if (key === "is_conserved") {
+          formDataToSend.append(key, formData[key] ? "true" : "false");
+        } else if (key === "image" && formData[key]) {
+          formDataToSend.append(key, formData[key]);
+        } else if (key !== "image") {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      await axiosInstance.put(
+        `https://api.ppr.vchdqarshi.uz/api/welding_equipment-detail/${data.id}/`,
+        formDataToSend
+      );
+
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Update error:", error.response?.data || error.message);
+      alert(`Xatolik: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <div className="modal-overlay">
+        <div className="modal-container">
+          <SoftTypography variant="h5" mb={2}>
+            Payvandlash uskunasini tahrirlash
+          </SoftTypography>
+
+          <div className="modal-content">
+            <div className="form-grid">
+              <div className="image-upload-container">
+                <label className="image-upload-label">
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    className="image-upload-input"
+                    onChange={handleImageChange}
+                  />
+                  <CloudUploadIcon />
+                  <span>Rasmni almashtirish uchun bosing</span>
+                  {previewImage && (
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="image-preview"
+                      style={{ display: "block" }}
+                    />
+                  )}
+                </label>
+              </div>
+
+              <label>
+                Korxona nomi
+                <input name="company_name" value={formData.company_name} onChange={handleChange} />
+              </label>
+
+              <label>
+                Detal nomi
+                <input name="detail_name" value={formData.detail_name} onChange={handleChange} />
+              </label>
+
+              <label>
+                Ishlab chiqarilgan sana
+                <input
+                  type="date"
+                  name="manufacture_date"
+                  value={formData.manufacture_date}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                Zavod raqami
+                <input name="factory_number" value={formData.factory_number} onChange={handleChange} />
+              </label>
+
+              <label>
+                Ro&#39;yxat raqami
+                <input name="registration_number" value={formData.registration_number} onChange={handleChange} />
+              </label>
+
+              <label>
+                O&#39;rnatilgan joyi
+                <input name="installation_location" value={formData.installation_location} onChange={handleChange} />
+              </label>
+
+              <label>
+                Holati
+                <select name="technical_condition" value={formData.technical_condition} onChange={handleChange}>
+                  <option value="working">Soz</option>
+                  <option value="faulty">Nosoz</option>
+                </select>
+              </label>
+
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="is_conserved"
+                  checked={formData.is_conserved}
+                  onChange={handleChange}
+                />
+                Konservatsiyaga olingan
+              </label>
+
+              {formData.is_conserved && (
+                <label>
+                  Konservatsiya sababi
+                  <input name="conservation_reason" value={formData.conservation_reason} onChange={handleChange} />
+                </label>
+              )}
+
+              <label>
+                Mas&#39;ul shaxs ID
+                <input
+                  type="number"
+                  name="responsible_person"
+                  value={formData.responsible_person}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                Muallif ID
+                <input type="number" name="author" value={formData.author} onChange={handleChange} />
+              </label>
+            </div>
+          </div>
+
+          <div className="modal-actions">
+            <button className="cancel-btn" onClick={onClose}>
+              Bekor qilish
+            </button>
+            <button className="submit-btn" onClick={handleSubmit}>
+              Saqlash
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+EditWeldingEquipmentModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+};
+
+export default EditWeldingEquipmentModal;

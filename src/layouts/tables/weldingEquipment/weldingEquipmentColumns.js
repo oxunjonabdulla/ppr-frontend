@@ -15,6 +15,8 @@ const weldingEquipmentColumns = [
     { name: "Konservatsiya sababi", align: "center", label: "Konservatsiya sababi", width: "8%" },
     { name: "Qo'shilgan vaqti", align: "center", label: "Qo'shilgan vaqti", width: "10%" },
     { name: "Yangilangan vaqti", align: "center", label: "Yangilangan vaqti", width: "10%" },
+    { name: "Amallar", align: "center", label: "Amallar", width: "10%" },
+
 ]
 
 export default weldingEquipmentColumns;

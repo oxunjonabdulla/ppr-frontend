@@ -10,9 +10,17 @@ import SoftBadge from "components/SoftBadge";
 import SearchHeader from "../SearchHeader";
 import ImageModal from "../ImageModal";
 import userColumns from "./userColumns";
+import AddUserModal from "./addUserModal";
 
 function UserTables() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalOpen = () => setIsModalOpen(true);
+  const handleModalClose = () => setIsModalOpen(false);
+  const handleSuccess = () => {
+    window.location.reload(); // or re-fetch users via API
+  };
 
   const formatRoleBadge = (role) => {
     const roleMap = {
@@ -39,7 +47,7 @@ function UserTables() {
 
     "ID raqami": item.id,
     "Rasmi": item.image ? (
-      <ImageModal src={`https://api.ppr.vchdqarshi.uz/${item.image}`} alt="Foydalanuvchi rasmi" />
+      <ImageModal src={item.image} alt="Foydalanuvchi rasmi" />
     ) : "-",
     "Ism Familiya": item.name || "-",
     "Foydalanuvchi nomi": item.username || "-",
@@ -59,8 +67,15 @@ function UserTables() {
               title="Foydalanuvchilar"
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-              hideAddButton
+              onAddClick={handleModalOpen}
+
             />
+            <AddUserModal
+              open={isModalOpen}
+              onClose={handleModalClose}
+              onSuccess={handleSuccess}
+            />
+
             <SoftBox px={3} pb={3}>
               <JournalTable
                 title="Foydalanuvchilar jadvali"

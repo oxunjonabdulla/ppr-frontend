@@ -25,7 +25,6 @@ function Header() {
   const [tabValue, setTabValue] = useState(0);
   const [user, setUser] = useState(null);
   const userImageUrl = `https://api.ppr.vchdqarshi.uz/${user?.image}` || "";
-  console.log("userImageUrl : ", userImageUrl);
   useEffect(() => {
     axiosInstance.get("https://api.ppr.vchdqarshi.uz/api/user/me/")
       .then((res) => setUser(res.data));

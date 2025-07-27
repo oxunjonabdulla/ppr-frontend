@@ -11,6 +11,9 @@ import SearchHeader from "../SearchHeader";
 import latheMachineColumns from "./latheMachineColumns";
 import ImageModal from "../ImageModal";
 import AddLatheMachineModal from "./AddLatheMachineModal";
+import ActionMenu from "../ActionMenu";
+import axiosInstance from "../../../axiosConfig";
+import EditLatheMachineModal from "./EditLatheMachineModal";
 
 
 function LatheMachineTables() {
@@ -31,6 +34,27 @@ function LatheMachineTables() {
   const handleModalOpen = () => setIsModalOpen(true);
   const handleSuccess = () => {
     window.location.reload(); // or refresh data another way
+  };
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const handleDelete = (item) => {
+    console.log("Delete clicked for ID:", item.id);
+    if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
+      axiosInstance
+        .delete(`lathe_machine-detail/${item.id}/`)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("O‘chirishda xatolik yuz berdi:", error);
+          alert("Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.");
+        });
+    }
+  };
+
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setEditOpen(true);
   };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
@@ -66,6 +90,12 @@ function LatheMachineTables() {
     "Tavsiyalar": item.recommendations || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
+    "Amallar": (
+      <ActionMenu
+        onEdit={() => handleEdit(item)}
+        onDelete={() => handleDelete(item)}
+      />
+    ),
   });
 
 
@@ -95,6 +125,12 @@ function LatheMachineTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
+            <EditLatheMachineModal
+             open={editOpen}
+              onClose={() => setEditOpen(false)}
+              item={selectedItem}
+              onSuccess={() => window.location.reload()}
+            />
           </Card>
         </SoftBox>
       </SoftBox>

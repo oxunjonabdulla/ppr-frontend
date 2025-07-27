@@ -1,5 +1,3 @@
-
-
 const pressureVesselColumns = [
     { name: "ID raqami", align: "center", label: "ID raqami", width: "5%" },
     { name: "Rasmi", align: "center", label: "Rasmi", width: "8%" },
@@ -14,6 +12,8 @@ const pressureVesselColumns = [
     { name: "Sig‘imning kategoriyasi", align: "center", label: "Sig‘imning kategoriyasi", width: "8%" },
     { name: "Qo'shilgan vaqti", align: "center", label: "Qo'shilgan vaqti", width: "10%" },
     { name: "Yangilangan vaqti", align: "center", label: "Yangilangan vaqti", width: "10%" },
+    { name: "Amallar", align: "center", label: "Amallar", width: "10%" },
+
 ]
 
 export default pressureVesselColumns;

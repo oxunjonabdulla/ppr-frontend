@@ -8,16 +8,15 @@ import { useState } from "react";
 import "layouts/tables/style.css";
 import SoftBadge from "components/SoftBadge";
 import SearchHeader from "../SearchHeader";
-import pressureVesselColumns from "./pressureVesselColumns";
+import latheMachineColumns from "./latheMachineColumns";
 import ImageModal from "../ImageModal";
-import AddPressureVesselModal from "./AddPressureVesselModal";
+import AddLatheMachineModal from "./AddLatheMachineModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
-import EditLiftingCraneModal from "../liftingCrane/EditLiftingCraneModal";
-import EditPressureVesselModal from "./EditPressureVesselModal";
+import EditLatheMachineModal from "./EditLatheMachineModal";
 
 
-function PressureVesselTables() {
+function LatheMachineTables() {
   const [searchQuery, setSearchQuery] = useState("");
   const formatUzbekDate = (dateString) => {
     if (!dateString) return "-";
@@ -42,7 +41,7 @@ function PressureVesselTables() {
     console.log("Delete clicked for ID:", item.id);
     if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
       axiosInstance
-        .delete(`pressure_vessel-detail/${item.id}/`)
+        .delete(`lathe_machine-detail/${item.id}/`)
         .then(() => {
           window.location.reload();
         })
@@ -86,7 +85,9 @@ function PressureVesselTables() {
       />
     ),
     "Mas'ul shaxs": item.responsible_person || "-",
-    "Sig‘imning kategoriyasi": item.category_name || "-",
+    "Konservatsiyaga olish": item.conservation_date ? formatUzbekDate(item.conservation_date) : "-",
+    "Konservatsiya sababi": item.conservation_reason || "-",
+    "Tavsiyalar": item.recommendations || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
     "Amallar": (
@@ -105,30 +106,32 @@ function PressureVesselTables() {
         <SoftBox mb={3}>
           <Card>
             <SearchHeader
-              title="Bosim ostida sig'imlar"
+              title="Tokarlik dastgohlari"
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onAddClick={handleModalOpen}
             />
-            <AddPressureVesselModal
+            <AddLatheMachineModal
               open={isModalOpen}
               onClose={handleModalClose}
               onSuccess={handleSuccess}
             />
             <SoftBox px={3} pb={3}>
               <JournalTable
-                title="Bosim ostida sig'imlar jadvali"
-                apiEndpoint="https://api.ppr.vchdqarshi.uz/api/pressure_vessel-list-create/"
-                columns={pressureVesselColumns}
+                title="Tokarlik dastgohlari jadvali"
+                apiEndpoint="https://api.ppr.vchdqarshi.uz/api/lathe_machine-list-create/"
+                columns={latheMachineColumns}
                 searchQuery={searchQuery}
                 formattedRows={formattedRows}
               />
             </SoftBox>
-              <EditPressureVesselModal
-             open={editOpen}
+            <EditLatheMachineModal
+              open={editOpen}
               onClose={() => setEditOpen(false)}
               item={selectedItem}
               onSuccess={() => window.location.reload()}
+
+
             />
           </Card>
         </SoftBox>
@@ -138,7 +141,7 @@ function PressureVesselTables() {
   );
 }
 
-export default PressureVesselTables;
+export default LatheMachineTables;
 
 
 

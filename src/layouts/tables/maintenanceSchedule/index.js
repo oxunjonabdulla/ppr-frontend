@@ -10,6 +10,9 @@ import SoftBadge from "components/SoftBadge";
 import maintenanceScheduleColumns from "./maintenanceScheduleColumns";
 import MaintenanceHeader from "../maintenanceHeader";
 import AddMaintenanceModal from "./AddMaintenanceModal";
+import ActionMenu from "../ActionMenu";
+import axiosInstance from "../../../axiosConfig";
+import ImageModal from "../ImageModal";
 
 
 function MaintenanceScheduleTables() {
@@ -19,7 +22,7 @@ function MaintenanceScheduleTables() {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleDateString("uz-UZ", options);
   };
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalClose = () => setIsModalOpen(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleSuccess = () => {
@@ -29,6 +32,23 @@ function MaintenanceScheduleTables() {
     if (!dateString) return "-";
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleString("uz-UZ", options);
+  };
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const handleDelete = (item) => {
+    console.log("Delete clicked for ID:", item.id);
+    if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
+      axiosInstance
+        .delete(`maintenance-detail/${item.id}/`)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("O‘chirishda xatolik yuz berdi:", error);
+          alert("Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.");
+        });
+    }
   };
 
   const maintenanceTypeUz = (type) => {
@@ -55,7 +75,17 @@ function MaintenanceScheduleTables() {
 
   const formattedRows = (item) => ({
     "ID raqami": item.id,
-    "Uskuna": item.equipment || "-",
+    "Uskuna": item.equipment ? (
+  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <ImageModal
+      src={`https://api.ppr.vchdqarshi.uz${item.equipment.image}`}
+      alt={item.equipment.detail_name}
+    />
+    <span>{item.equipment.detail_name}</span>
+  </div>
+) : "-",
+
+
     "Texnik xizmat turi": maintenanceTypeUz(item.maintenance_type),
     "Ta’rif": item.description || "-",
     "Ko‘rik sanasi": formatUzbekDate(item.scheduled_date),
@@ -73,6 +103,12 @@ function MaintenanceScheduleTables() {
     "Mas’ul foydalanuvchi": item.assigned_to || "-",
     "Qo‘shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
+    "Amallar": (
+      <ActionMenu
+        onEdit={() => handleEdit(item)}
+        onDelete={() => handleDelete(item)}
+      />
+    ),
   });
 
 

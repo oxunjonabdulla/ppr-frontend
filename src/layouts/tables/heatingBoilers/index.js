@@ -5,12 +5,15 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import heatingColumns from "layouts/tables/heatingBoilers/heatingBoilerColumns";
 import JournalTable from "layouts/tables/JournalTable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "layouts/tables/style.css";
 import SoftBadge from "components/SoftBadge";
 import SearchHeader from "../SearchHeader";
 import ImageModal from "../ImageModal";
 import AddHeatingBoilerModal from "./AddHeatingBoilerModal";
+import ActionMenu from "../ActionMenu";
+import axiosInstance from "../../../axiosConfig";
+import EditHeatingBoilerModal from "./EditHeatingBoilerModal";
 
 function HeatingBoilersTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,7 +35,27 @@ function HeatingBoilersTables() {
   const handleSuccess = () => {
     window.location.reload(); // or refresh data another way
   };
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const handleDelete = (item) => {
+    console.log("Delete clicked for ID:", item.id);
+    if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
+      axiosInstance
+        .delete(`heating_boiler-detail/${item.id}/`)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("O‘chirishda xatolik yuz berdi:", error);
+          alert("Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.");
+        });
+    }
+  };
 
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setEditOpen(true);
+  };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
     "Rasmi": item.image ? (
@@ -67,6 +90,13 @@ function HeatingBoilersTables() {
     "Yoqilg'i": item.fuel_type || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
+    "Amallar": (
+      <ActionMenu
+        onEdit={() => handleEdit(item)}
+        onDelete={() => handleDelete(item)}
+      />
+    ),
+
   });
 
   return (
@@ -97,6 +127,14 @@ function HeatingBoilersTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
+            <EditHeatingBoilerModal
+              open={editOpen}
+              onClose={() => setEditOpen(false)}
+              item={selectedItem}
+              onSuccess={() => window.location.reload()}
+
+
+            />
           </Card>
         </SoftBox>
       </SoftBox>

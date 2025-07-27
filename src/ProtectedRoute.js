@@ -10,7 +10,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   useEffect(() => {
     const checkToken = () => {
       const t = localStorage.getItem("token");
-      console.log("Token from localStorage:", t); // Debug log
       setToken(t);
       setIsLoading(false); // Set loading to false after checking
     };

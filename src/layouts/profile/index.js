@@ -15,7 +15,6 @@ import ProfilesList from "examples/Lists/ProfilesList";
 import Header from "layouts/profile/components/Header";
 
 // Data
-import useProfilesListData from "layouts/profile/data/profilesListData";
 import LoginLogTable from "./data/userLoginInformations";
 import { useEffect, useState } from "react";
 
@@ -23,7 +22,6 @@ import SoftTypography from "../../components/SoftTypography";
 import axiosInstance from "../../axiosConfig";
 
 function Overview() {
-  const profilesListData = useProfilesListData();
   const [user, setUser] = useState(null);
   useEffect(() => {
     axiosInstance.get("https://api.ppr.vchdqarshi.uz/api/user/me/")

@@ -15,7 +15,6 @@ function LoginLogsCard() {
   useEffect(() => {
     axiosInstance.get("https://api.ppr.vchdqarshi.uz/api/user/login-logs/")
       .then((res) => setLoginLogs(res.data.results));
-    console.log("login_logs : ", login_logs);
   }, [login_logs]);
   return (
     <Card sx={{ height: "100%", p: 2 }}>

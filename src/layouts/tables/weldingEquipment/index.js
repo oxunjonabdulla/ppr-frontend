@@ -13,6 +13,10 @@ import ImageModal from "../ImageModal";
 import Switch from "@mui/material/Switch";
 import axios from "axios";
 import AddWeldingEquipmentModal from "./AddWeldingEquipmentModal";
+import ActionMenu from "../ActionMenu";
+import axiosInstance from "../../../axiosConfig";
+import EditPressureVesselModal from "../pressureVessel/EditPressureVesselModal";
+import EditWeldingEquipmentModal from "./EditWeldingEquipmentModal";
 
 function WeldingEquipmentTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,7 +48,27 @@ function WeldingEquipmentTables() {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleString("uz-UZ", options);
   };
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const handleDelete = (item) => {
+    console.log("Delete clicked for ID:", item.id);
+    if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
+      axiosInstance
+        .delete(`welding_equipment-detail/${item.id}/`)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("O‘chirishda xatolik yuz berdi:", error);
+          alert("Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.");
+        });
+    }
+  };
 
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setEditOpen(true);
+  };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
     "Rasmi": item.image ? (
@@ -85,6 +109,12 @@ function WeldingEquipmentTables() {
     "Konservatsiya sababi": item.conservation_reason || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
+    "Amallar": (
+      <ActionMenu
+        onEdit={() => handleEdit(item)}
+        onDelete={() => handleDelete(item)}
+      />
+    ),
   });
 
 
@@ -114,6 +144,13 @@ function WeldingEquipmentTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
+            <EditWeldingEquipmentModal
+              open={editOpen}
+              onClose={() => setEditOpen(false)}
+              data={selectedItem}
+              onSuccess={() => window.location.reload()}
+            />
+
           </Card>
         </SoftBox>
       </SoftBox>

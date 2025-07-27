@@ -17,8 +17,6 @@ function JournalTable({ title, apiEndpoint, columns, searchQuery, formattedRows 
     .then((res) => {
       setRows(res.data.results.map(formattedRows));
       setTotalCount(res.data.count)
-      console.log("data : ", res.data);
-      console.log("results : ",res.data.results);
     })
     .catch((err) => console.error("API error", err));
   }, [apiEndpoint, page, pageSize,searchQuery]);
