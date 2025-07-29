@@ -76,7 +76,7 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
       });
 
       await axiosInstance.put(
-        `https://api.ppr.vchdqarshi.uz/api/lifting_crane-detail/${item.id}/`,
+        `lifting_crane-detail/${item.id}/`,
         formDataToSend
       );
 

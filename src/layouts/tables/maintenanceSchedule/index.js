@@ -8,11 +8,12 @@ import { useState } from "react";
 import "layouts/tables/style.css";
 import SoftBadge from "components/SoftBadge";
 import maintenanceScheduleColumns from "./maintenanceScheduleColumns";
-import MaintenanceHeader from "../maintenanceHeader";
 import AddMaintenanceModal from "./AddMaintenanceModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
 import ImageModal from "../ImageModal";
+import SearchHeader from "../SearchHeader";
+import EditMaintenanceModal from "./EditMaintenanceModal";
 
 
 function MaintenanceScheduleTables() {
@@ -50,7 +51,11 @@ function MaintenanceScheduleTables() {
         });
     }
   };
-
+  const handleEdit = (item) => {
+    console.log("Edit clicked for item:", item); // Add this for debugging
+    setSelectedItem(item);
+    setEditOpen(true);
+  };
   const maintenanceTypeUz = (type) => {
     const types = {
       inspection: "Texnik ko‘rik",
@@ -76,14 +81,14 @@ function MaintenanceScheduleTables() {
   const formattedRows = (item) => ({
     "ID raqami": item.id,
     "Uskuna": item.equipment ? (
-  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-    <ImageModal
-      src={`https://api.ppr.vchdqarshi.uz${item.equipment.image}`}
-      alt={item.equipment.detail_name}
-    />
-    <span>{item.equipment.detail_name}</span>
-  </div>
-) : "-",
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <ImageModal
+          src={`https://api.ppr.vchdqarshi.uz${item.equipment.image}`}
+          alt={item.equipment.detail_name}
+        />
+        <span>{item.equipment.detail_name}</span>
+      </div>
+    ) : "-",
 
 
     "Texnik xizmat turi": maintenanceTypeUz(item.maintenance_type),
@@ -100,7 +105,8 @@ function MaintenanceScheduleTables() {
       />
     ),
     "Bajarilgan sana": item.completed_date ? formatUzbekDate(item.completed_date) : "-",
-    "Mas’ul foydalanuvchi": item.assigned_to || "-",
+    "Bajargan foydalanuvchi": item.completed_by?.name || "-",
+    "Mas’ul foydalanuvchi": item.assigned_to?.name || "-",
     "Qo‘shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
     "Amallar": (
@@ -118,11 +124,13 @@ function MaintenanceScheduleTables() {
       <SoftBox py={3}>
         <SoftBox mb={3}>
           <Card>
-            <MaintenanceHeader
+
+            <SearchHeader
               title="Ta'mirlash jadvali"
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onAddClick={handleModalOpen}
+
             />
             <AddMaintenanceModal
               open={isModalOpen}
@@ -139,6 +147,12 @@ function MaintenanceScheduleTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
+            <EditMaintenanceModal
+              open={editOpen}
+              onClose={() => setEditOpen(false)}
+              maintenanceId={selectedItem?.id}  // ✅ Pass only the ID
+              onSuccess={() => window.location.reload()}
+            />
           </Card>
         </SoftBox>
       </SoftBox>

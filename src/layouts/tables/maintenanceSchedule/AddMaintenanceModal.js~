@@ -69,18 +69,17 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
       };
 
       const payload = {
-  maintenance_type: formData.maintenance_type,
-  description: formData.description || "",
-  scheduled_date: formatDate(formData.scheduled_date),
-  next_maintenance_date: formatDate(formData.next_maintenance_date),
-  is_completed: formData.is_completed,
-  completed_date: formatDate(formData.completed_date),
-  equipment_id: Number(formData.equipment),
-  assigned_to_id: formData.assigned_to ? Number(formData.assigned_to) : null,
-  completed_by_id: formData.completed_by ? Number(formData.completed_by) : null,
-  created_by: 1, // or get from auth context
-};
-
+        maintenance_type: formData.maintenance_type,
+        description: formData.description || "",
+        scheduled_date: formatDate(formData.scheduled_date), // Fixed date format
+        next_maintenance_date: formatDate(formData.next_maintenance_date),
+        is_completed: formData.is_completed,
+        completed_date: formatDate(formData.completed_date),
+        equipment_id: Number(formData.equipment),
+        assigned_to: formData.assigned_to ? Number(formData.assigned_to) : null,
+        completed_by: formData.completed_by ? Number(formData.completed_by) : null,
+        created_by: 1, // Should come from auth
+      };
 
       const response = await axiosInstance.post(
         "https://api.ppr.vchdqarshi.uz/api/maintenance-list-create/",

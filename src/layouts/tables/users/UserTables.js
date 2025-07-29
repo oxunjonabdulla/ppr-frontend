@@ -11,6 +11,9 @@ import SearchHeader from "../SearchHeader";
 import ImageModal from "../ImageModal";
 import userColumns from "./userColumns";
 import AddUserModal from "./addUserModal";
+import ActionMenu from "../ActionMenu";
+import axiosInstance from "../../../axiosConfig";
+import EditUserModal from "./EditUserModal";
 
 function UserTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,6 +25,27 @@ function UserTables() {
     window.location.reload(); // or re-fetch users via API
   };
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const handleDelete = (item) => {
+    console.log("Delete clicked for ID:", item.id);
+    if (window.confirm("Rostdan ham o'chirmoqchimisiz?")) {
+      axiosInstance
+        .delete(`user-delete/${item.id}/`)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("O‘chirishda xatolik yuz berdi:", error);
+          alert("Xatolik yuz berdi. Iltimos, keyinroq urinib ko‘ring.");
+        });
+    }
+  };
+
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setEditOpen(true);
+  };
   const formatRoleBadge = (role) => {
     const roleMap = {
       Superuser: { label: "Super Foydalanuvchi", color: "dark" },
@@ -49,11 +73,22 @@ function UserTables() {
     "Rasmi": item.image ? (
       <ImageModal src={item.image} alt="Foydalanuvchi rasmi" />
     ) : "-",
-    "Ism Familiya": item.name || "-",
+    "Ism Familya": item.name || "-",
     "Foydalanuvchi nomi": item.username || "-",
     "Roli": formatRoleBadge(item.role),
     "Korxona nomi": item.company?.name || "-",
     "Telefon raqami": item.phone_number || "-",
+    "JSHSHIR raqami": item.jshshir || "-",
+    ...(item.role === "Superuser"
+    ? {}
+    : {
+        "Amallar": (
+          <ActionMenu
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item)}
+          />
+        ),
+      }),
   });
 
 
@@ -85,6 +120,12 @@ function UserTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
+            <EditUserModal
+              open={editOpen}
+              onClose={() => setEditOpen(false)}
+              item={selectedItem}
+              onSuccess={() => window.location.reload()}
+            />
           </Card>
         </SoftBox>
       </SoftBox>

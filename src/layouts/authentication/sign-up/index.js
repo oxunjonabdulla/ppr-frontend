@@ -42,6 +42,7 @@ function SignUp() {
       const refresh = response.data.refresh; // optional
       localStorage.setItem("token", access); // ✅ Store access token
       localStorage.setItem("refresh", refresh); // optional
+
       const profileResponse = await axiosInstance.get(
         "https://api.ppr.vchdqarshi.uz/api/user/me/",
         {
@@ -55,6 +56,7 @@ function SignUp() {
       const user = profileResponse.data;
 
       localStorage.setItem("userRole", user.role);
+      localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "Superuser") {
         window.location.href = "/dashboard";

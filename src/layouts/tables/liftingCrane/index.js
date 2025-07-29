@@ -123,7 +123,7 @@ function LiftingCraneTables() {
             <SoftBox px={3} pb={3}>
               <JournalTable
                 title="Yuk ko'tarish kranlari jadvali"
-                apiEndpoint="https://api.ppr.vchdqarshi.uz/api/lifting_crane-list-create/"
+                apiEndpoint="lifting_crane-list-create/"
                 columns={liftingCraneColumns}
                 searchQuery={searchQuery}
                 formattedRows={formattedRows}

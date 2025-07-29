@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import SoftTypography from "components/SoftTypography";
@@ -6,11 +6,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import axiosInstance from "../../../axiosConfig";
 import "layouts/tables/style.css";
 
-function AddUserModal({ open, onClose, onSuccess }) {
+function EditUserModal({ open, onClose, onSuccess, item }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     username: "",
-    password: "",
     name: "",
     role: "EquipmentOperator",
     company: 0,
@@ -18,6 +17,21 @@ function AddUserModal({ open, onClose, onSuccess }) {
     phone_number: "",
     image: null,
   });
+
+  useEffect(() => {
+    if (item) {
+      setFormData({
+        username: item.username || "",
+        name: item.name || "",
+        role: item.role || "EquipmentOperator",
+        company: item.company?.id || 0,
+        jshshir: item.jshshir || "",
+        phone_number: item.phone_number || "",
+        image: null, // For update, image stays null unless user selects a new one
+      });
+      setPreviewImage(item.image || null);
+    }
+  }, [item]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -44,9 +58,7 @@ function AddUserModal({ open, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     try {
-      const currentUser = JSON.parse(localStorage.getItem("user"));
-      console.log("Current user:", currentUser);
-      // get current logged-in user
+      const currentUser = JSON.parse(localStorage.getItem("user")); // get current logged-in user
       const data = new FormData();
 
       // Add all formData fields (excluding company)
@@ -60,10 +72,7 @@ function AddUserModal({ open, onClose, onSuccess }) {
       data.append("company", currentUser.company.id); // ✅ sending ID
 
 
-      const response = await axiosInstance.post(
-        "https://api.ppr.vchdqarshi.uz/api/user/create/",
-        data,
-      );
+      await axiosInstance.put(`user-update/${item.id}/`, data);
 
       onSuccess();
       onClose();
@@ -78,8 +87,7 @@ function AddUserModal({ open, onClose, onSuccess }) {
     <Modal open={open} onClose={onClose}>
       <div className="modal-overlay">
         <div className="modal-container">
-          <SoftTypography variant="h5" mb={2}>Yangi foydalanuvchi qo‘shish</SoftTypography>
-
+          <SoftTypography variant="h5" mb={2}>Foydalanuvchini tahrirlash</SoftTypography>
           <div className="modal-content">
             <div className="form-grid">
               <div className="image-upload-container">
@@ -90,7 +98,6 @@ function AddUserModal({ open, onClose, onSuccess }) {
                     accept="image/*"
                     className="image-upload-input"
                     onChange={handleImageChange}
-
                   />
                   <CloudUploadIcon />
                   <span>Rasm yuklash</span>
@@ -102,18 +109,12 @@ function AddUserModal({ open, onClose, onSuccess }) {
                       style={{ display: "block", maxWidth: "200px", maxHeight: "200px", marginTop: "1rem" }}
                     />
                   )}
-
                 </label>
               </div>
 
               <label>
                 Foydalanuvchi nomi
                 <input name="username" value={formData.username} onChange={handleChange} />
-              </label>
-
-              <label>
-                Parol
-                <input type="password" name="password" value={formData.password} onChange={handleChange} />
               </label>
 
               <label>
@@ -147,7 +148,7 @@ function AddUserModal({ open, onClose, onSuccess }) {
               Bekor qilish
             </button>
             <button className="submit-btn" onClick={handleSubmit}>
-              Qo‘shish
+              Saqlash
             </button>
           </div>
         </div>
@@ -156,10 +157,11 @@ function AddUserModal({ open, onClose, onSuccess }) {
   );
 }
 
-AddUserModal.propTypes = {
+EditUserModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSuccess: PropTypes.func.isRequired,
+  item: PropTypes.object, // user object being edited
 };
 
-export default AddUserModal;
+export default EditUserModal;

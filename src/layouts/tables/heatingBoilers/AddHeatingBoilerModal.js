@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import SoftTypography from "components/SoftTypography";
-import axios from "axios";
 import "layouts/tables/style.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import axiosInstance from "../../../axiosConfig";
+import { useEffect } from "react";
 
 function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
@@ -48,25 +48,58 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
+  try {
+    const formDataToSend = new FormData();
+
+    Object.keys(formData).forEach((key) => {
+      if (key !== "author") {
         formDataToSend.append(key, formData[key]);
-      });
+      }
+    });
 
-      const response = await axiosInstance.post(
-        "https://api.ppr.vchdqarshi.uz/api/heating_boiler-list-create/",
-        formDataToSend,
-      );
-
-      onSuccess();
-      onClose();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // Add error notification
-      alert("Yaratish muvaffaqiyatsiz! Ruxsat yo'q (403). Iltimos, tizimga qayta kiring.");
+    if (currentUserId) {
+      formDataToSend.append("author", currentUserId);
     }
-  };
+
+    const response = await axiosInstance.post(
+      "heating_boiler-list-create/",
+      formDataToSend
+    );
+
+    onSuccess();
+    onClose();
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Yaratish muvaffaqiyatsiz! Ruxsat yo'q (403). Iltimos, tizimga qayta kiring.");
+  }
+};
+
+
+  const [userList, setUserList] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axiosInstance.get("users/");
+        setUserList(response.data.results);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axiosInstance.get("users/me/");
+        setCurrentUserId(response.data.id);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    fetchUsers();
+    fetchCurrentUser();
+  }, []);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -140,13 +173,15 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
               </label>
 
               <label>
-                Mas&#39;ul shaxs ID
-                <input type="number" name="responsible_person" onChange={handleChange} />
-              </label>
-
-              <label>
-                Muallif ID
-                <input type="number" name="author" onChange={handleChange} />
+                Mas&#39;ul shaxs
+                <select name="responsible_person" onChange={handleChange}>
+                  <option value="">Foydalanuvchini tanlang</option>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
           </div>

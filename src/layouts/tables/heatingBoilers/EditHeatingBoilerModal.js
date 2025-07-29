@@ -8,6 +8,9 @@ import axiosInstance from "../../../axiosConfig";
 
 function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -17,8 +20,8 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     fuel_type: "",
-    responsible_person: 0,
-    author: 0,
+    responsible_person: "",
+    author: "",
   });
 
   useEffect(() => {
@@ -32,12 +35,36 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
         installation_location: item.installation_location || "",
         technical_condition: item.technical_condition || "working",
         fuel_type: item.fuel_type || "",
-        responsible_person: item.responsible_person || 0,
-        author: item.author || 0,
+        responsible_person: item.responsible_person || "",
+        author: item.author || "",
       });
-      setPreviewImage(item.image || null); // Optional preview
+      setPreviewImage(item.image || null);
     }
   }, [item]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Foydalanuvchilarni olishda xatolik:", error);
+      }
+    };
+
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axiosInstance.get("users/me/");
+        setCurrentUserId(res.data.id);
+        setFormData((prev) => ({ ...prev, author: res.data.id }));
+      } catch (error) {
+        console.error("Joriy foydalanuvchini olishda xatolik:", error);
+      }
+    };
+
+    fetchUsers();
+    fetchCurrentUser();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -68,14 +95,11 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
   const handleSubmit = async () => {
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataToSend.append(key, formData[key]);
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
       });
 
-      await axiosInstance.put(
-        `heating_boiler-detail/${item.id}/`,
-        formDataToSend,
-      );
+      await axiosInstance.put(`heating_boiler-detail/${item.id}/`, formDataToSend);
 
       onSuccess();
       onClose();
@@ -114,6 +138,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                 </label>
               </div>
 
+
               <label>Korxona nomi<input name="company_name" value={formData.company_name}
                                         onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
@@ -132,10 +157,21 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                 </select>
               </label>
               <label>Yoqilg‘i turi<input name="fuel_type" value={formData.fuel_type} onChange={handleChange} /></label>
-              <label>Mas’ul shaxs ID<input type="number" name="responsible_person" value={formData.responsible_person}
-                                           onChange={handleChange} /></label>
-              <label>Muallif ID<input type="number" name="author" value={formData.author}
-                                      onChange={handleChange} /></label>
+
+              <label>
+                Mas’ul shaxs
+                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                  <option value="">Tanlang</option>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {/* Hidden field for author (not editable) */}
+              <input type="hidden" name="author" value={formData.author} />
             </div>
           </div>
 
