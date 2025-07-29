@@ -38,6 +38,7 @@ function Dashboard() {
     weldingEquipment: 0,
     employees: 0,
   });
+  console.log();
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -68,7 +69,8 @@ function Dashboard() {
           warnings: results[4].data.count,
           pressureVessels: results[5].data.count,
           weldingEquipment: results[6].data.count,
-          employees: results[7].data.length,
+          employees: results[7].data.count,
+
         });
       } catch (error) {
         console.error("Error fetching counts:", error);
@@ -161,7 +163,7 @@ function Dashboard() {
             </Grid>
 
             <Grid item xs={12} sm={6} xl={3}>
-              <Link to="/kabinet">
+              <Link to="/users">
                 <MiniStatisticsCard
                   title={{ text: "Xodimlar" }}
                   count={`${counts.employees} ta`}
