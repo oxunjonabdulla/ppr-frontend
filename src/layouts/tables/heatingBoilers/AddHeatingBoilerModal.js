@@ -29,7 +29,7 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
       try {
         const [usersRes, meRes] = await Promise.all([
           axiosInstance.get("users/"),
-          axiosInstance.get("users/me/"),
+          axiosInstance.get("user/me/"),
         ]);
         setUserList(usersRes.data.results);
         setCurrentUserId(meRes.data.id);
