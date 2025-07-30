@@ -27,7 +27,45 @@ import axiosInstance from "../../axiosConfig";
 
 function Dashboard() {
   const { size } = typography;
-  const { chart, items } = reportsBarChartData;
+  const [chartData, setChartData] = useState(reportsBarChartData);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [equipmentRes, userRes] = await Promise.all([
+          axiosInstance.get("equipment/"),
+          axiosInstance.get("users/"),
+        ]);
+
+        const equipmentCount = equipmentRes.data.count;
+        const userCount = userRes.data.count;
+
+        const updatedItems = reportsBarChartData.items.map((item) => {
+          if (item.label === "Xodimlar") {
+            return {
+              ...item,
+              progress: { ...item.progress, content: `${userCount} ta` },
+            };
+          }
+          if (item.label === "Uskunalar") {
+            return {
+              ...item,
+              progress: { ...item.progress, content: `${equipmentCount} ta` },
+            };
+          }
+          return item;
+        });
+
+        setChartData({ ...reportsBarChartData, items: updatedItems });
+      } catch (err) {
+        console.error("Failed to fetch counts", err);
+      }
+    };
+
+    fetchCounts();
+  }, []);
+
+
   const [counts, setCounts] = useState({
     heatingBoilers: 0,
     latheMachines: 0,
@@ -56,7 +94,7 @@ function Dashboard() {
 
         const results = await Promise.all(
           endpoints.map(endpoint =>
-            axiosInstance.get(`https://api.ppr.vchdqarshi.uz/api/${endpoint}`),
+            axiosInstance.get(`${endpoint}`),
           ),
         );
 
@@ -195,8 +233,8 @@ function Dashboard() {
                     (<strong>+23%</strong>) o’tgan haftaga nisbatan oshgan
                   </>
                 }
-                chart={chart}
-                items={items}
+                chart={chartData.chart}
+                items={chartData.items}
               />
             </Grid>
             <Grid item xs={12} lg={7}>

@@ -7,17 +7,17 @@ const reportsBarChartData = {
     {
       icon: { color: "primary", component: "people" },
       label: "Xodimlar",
-      progress: { content: "36K", percentage: 60 },
+      progress: { content: "10", percentage: 60 },
     },
     {
       icon: { color: "info", component: "settings" },
       label: "Nosozliklar",
-      progress: { content: "2M", percentage: 90 },
+      progress: { content: "41 ta", percentage: 90 },
     },
     {
       icon: { color: "warning", component: "engineering" },
       label: "Bajarilgan",
-      progress: { content: "$435", percentage: 30 },
+      progress: { content: "30 ta", percentage: 30 },
     },
     {
       icon: { color: "error", component: "build" },

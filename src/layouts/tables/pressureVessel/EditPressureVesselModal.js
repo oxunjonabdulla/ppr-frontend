@@ -8,6 +8,8 @@ import axiosInstance from "../../../axiosConfig";
 
 function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
+
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -19,6 +21,7 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
     category_name: "",
     responsible_person: 0,
     author: 0,
+    image: null,
   });
 
   useEffect(() => {
@@ -34,11 +37,24 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
         category_name: item.category_name || "",
         responsible_person: item.responsible_person || 0,
         author: item.author || 0,
+        image: null,
       });
       setPreviewImage(item.image || null);
     }
   }, [item]);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Foydalanuvchilarni yuklashda xatolik:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -47,20 +63,31 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
-      setFormData({
-        ...formData,
-        image: file,
-      });
     }
+    handleChange(e);
   };
 
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const { name, value, type, checked, files } = e.target;
+    if (type === "checkbox") {
+      setFormData({ ...formData, [name]: checked });
+    } else if (name === "image") {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
+  useEffect(() => {
+    if (item) {
+      setFormData({
+        ...item,
+        image: null,
+        author: localStorage.getItem("userId") || item.author,
+      });
+      setPreviewImage(item.image || null);
+    }
+  }, [item]);
 
   const handleSubmit = async () => {
     try {
@@ -69,14 +96,20 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
       Object.keys(formData).forEach((key) => {
         if (key === "manufacture_date" && formData[key]) {
           formDataToSend.append(key, new Date(formData[key]).toISOString().split("T")[0]);
+        } else if (key === "image") {
+          if (formData.image) {
+            formDataToSend.append("image", formData.image);
+          }
+          // Skip appending if image is null
         } else {
           formDataToSend.append(key, formData[key]);
         }
       });
 
+
       await axiosInstance.put(
-        `https://api.ppr.vchdqarshi.uz/api/pressure_vessel-detail/${item.id}/`,
-        formDataToSend
+        `pressure_vessel-detail/${item.id}/`,
+        formDataToSend,
       );
 
       onSuccess();
@@ -117,21 +150,38 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
                 </label>
               </div>
 
-              <label>Korxona nomi<input name="company_name" value={formData.company_name} onChange={handleChange} /></label>
+              <label>Korxona nomi<input name="company_name" value={formData.company_name}
+                                        onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date}
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
-              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number}
+                                          onChange={handleChange} /></label>
+              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location}
+                                            onChange={handleChange} /></label>
               <label>Holati
                 <select name="technical_condition" value={formData.technical_condition} onChange={handleChange}>
                   <option value="working">Soz</option>
                   <option value="faulty">Nosoz</option>
                 </select>
               </label>
-              <label>Sig‘im kategoriyasi<input name="category_name" value={formData.category_name} onChange={handleChange} /></label>
-              <label>Mas’ul shaxs ID<input type="number" name="responsible_person" value={formData.responsible_person} onChange={handleChange} /></label>
-              <label>Muallif ID<input type="number" name="author" value={formData.author} onChange={handleChange} /></label>
+              <label>Sig‘im kategoriyasi<input name="category_name" value={formData.category_name}
+                                               onChange={handleChange} /></label>
+              <label>
+                Mas’ul shaxs
+                <select
+                  name="responsible_person"
+                  value={formData.responsible_person}
+                  onChange={handleChange}
+                >
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
 

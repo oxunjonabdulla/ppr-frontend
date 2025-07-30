@@ -6,9 +6,19 @@ import "layouts/tables/style.css";
 import axiosInstance from "../../../axiosConfig";
 
 function AddMaintenanceModal({ open, onClose, onSuccess }) {
-
   const [equipmentList, setEquipmentList] = useState([]);
   const [userList, setUserList] = useState([]);
+  const [formData, setFormData] = useState({
+    maintenance_type: "inspection",
+    description: "",
+    scheduled_date: "",
+    next_maintenance_date: "",
+    is_completed: false,
+    completed_date: "",
+    equipment_id: 0,
+    assigned_to: 0,
+    completed_by: 0,
+  });
 
   useEffect(() => {
     const fetchEquipments = async () => {
@@ -30,20 +40,8 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
     };
 
     fetchEquipments();
-    fetchUsers(); // 👈 add this
+    fetchUsers();
   }, []);
-
-  const [formData, setFormData] = useState({
-    maintenance_type: "inspection",
-    description: "",
-    scheduled_date: "",
-    next_maintenance_date: "",
-    is_completed: false,
-    completed_date: "",
-    equipment_id: 0,
-    assigned_to: 0,
-    completed_by: 0,
-  });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -55,36 +53,34 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     try {
-      // Validate required fields first
       if (!formData.equipment || !formData.maintenance_type || !formData.scheduled_date) {
         alert("Iltimos, uskuna ID, texnik xizmat turi va ko'rik sanasini kiriting!");
         return;
       }
 
-      // Helper function for date formatting
       const formatDate = (dateString) => {
         if (!dateString) return null;
         const date = new Date(dateString);
-        return date.toISOString().split("T")[0]; // YYYY-MM-DD format
+        return date.toISOString().split("T")[0];
       };
 
       const payload = {
-  maintenance_type: formData.maintenance_type,
-  description: formData.description || "",
-  scheduled_date: formatDate(formData.scheduled_date),
-  next_maintenance_date: formatDate(formData.next_maintenance_date),
-  is_completed: formData.is_completed,
-  completed_date: formatDate(formData.completed_date),
-  equipment_id: Number(formData.equipment),
-  assigned_to_id: formData.assigned_to ? Number(formData.assigned_to) : null,
-  completed_by_id: formData.completed_by ? Number(formData.completed_by) : null,
-  created_by: 1, // or get from auth context
-};
+        maintenance_type: formData.maintenance_type,
+        description: formData.description || "",
+        scheduled_date: formatDate(formData.scheduled_date),
+        next_maintenance_date: formatDate(formData.next_maintenance_date),
+        is_completed: formData.is_completed,
+        completed_date: formatDate(formData.completed_date),
+        equipment_id: Number(formData.equipment),
+        assigned_to_id: formData.assigned_to ? Number(formData.assigned_to) : null,
+        completed_by_id: formData.completed_by ? Number(formData.completed_by) : null,
+        created_by: 1, // or get from auth context
+      };
 
-
-      const response = await axiosInstance.post(
+      await axiosInstance.post(
         "https://api.ppr.vchdqarshi.uz/api/maintenance-list-create/",
-        payload);
+        payload
+      );
 
       onSuccess();
       onClose();
@@ -99,7 +95,6 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
       <div className="modal-overlay">
         <div className="modal-container">
           <SoftTypography variant="h5" mb={2}>Yangi texnik xizmat jadvali qo&#39;shish</SoftTypography>
-
           <div className="modal-content">
             <div className="form-grid">
               <label>
@@ -112,19 +107,15 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
                   <option value="inspection">Texnik ko‘rik</option>
                   <option value="full_inspection">To‘liq texnik ko‘rik</option>
                   <option value="partial_inspection">Qisman texnik ko‘rik</option>
-
                   <option value="voltmeter_check">Voltmetr tekshiruvi</option>
                   <option value="manometer_check">Manometr tekshiruvi</option>
-
                   <option value="hydraulic_test">Gidravlik sinov</option>
                   <option value="pressure_test">Bosim sinovi</option>
                   <option value="flush_test">Yuvish va sinov</option>
                   <option value="inner_outer_check">Ichki/tashqi tekshiruv</option>
-
                   <option value="lab_test">Laboratoriya tekshiruvi</option>
                   <option value="leveling_check">Nivelirovka tekshiruvi</option>
                   <option value="safety_valve_check">Xavfsizlik klapani tekshiruvi</option>
-
                   <option value="lubrication_check">Yog‘lash tekshiruvi</option>
                   <option value="alignment_check">Markalash tekshiruvi</option>
                   <option value="calibration_check">Kalibrlash tekshiruvi</option>
@@ -199,7 +190,6 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
                 </select>
               </label>
 
-
               <label>
                 Mas&#39;ul foydalanuvchi
                 <select
@@ -215,7 +205,6 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
                   ))}
                 </select>
               </label>
-
 
               {formData.is_completed && (
                 <label>
@@ -233,18 +222,13 @@ function AddMaintenanceModal({ open, onClose, onSuccess }) {
                     ))}
                   </select>
                 </label>
-
               )}
             </div>
           </div>
 
           <div className="modal-actions">
-            <button className="cancel-btn" onClick={onClose}>
-              Bekor qilish
-            </button>
-            <button className="submit-btn" onClick={handleSubmit}>
-              Qo&#39;shish
-            </button>
+            <button className="cancel-btn" onClick={onClose}>Bekor qilish</button>
+            <button className="submit-btn" onClick={handleSubmit}>Qo&#39;shish</button>
           </div>
         </div>
       </div>

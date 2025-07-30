@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
-import SoftTypography from "components/SoftTypography";
-import "layouts/tables/style.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import SoftTypography from "components/SoftTypography";
 import axiosInstance from "../../../axiosConfig";
+import "layouts/tables/style.css";
 
 function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [userList, setUserList] = useState([]);
-  const [currentUserId, setCurrentUserId] = useState(null);
-
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -21,6 +19,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
     technical_condition: "working",
     fuel_type: "",
     responsible_person: "",
+    image: null,
     author: "",
   });
 
@@ -36,6 +35,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
         technical_condition: item.technical_condition || "working",
         fuel_type: item.fuel_type || "",
         responsible_person: item.responsible_person || "",
+        image: null,
         author: item.author || "",
       });
       setPreviewImage(item.image || null);
@@ -43,52 +43,31 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
   }, [item]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axiosInstance.get("users/");
-        setUserList(res.data.results);
+        const [usersRes, currentUserRes] = await Promise.all([
+          axiosInstance.get("users/"),
+          axiosInstance.get("user/me/"),
+        ]);
+        setUserList(usersRes.data.results);
+        setFormData((prev) => ({ ...prev, author: currentUserRes.data.id }));
       } catch (error) {
-        console.error("Foydalanuvchilarni olishda xatolik:", error);
+        console.error("Ma'lumotlarni olishda xatolik:", error);
       }
     };
-
-    const fetchCurrentUser = async () => {
-      try {
-        const res = await axiosInstance.get("users/me/");
-        setCurrentUserId(res.data.id);
-        setFormData((prev) => ({ ...prev, author: res.data.id }));
-      } catch (error) {
-        console.error("Joriy foydalanuvchini olishda xatolik:", error);
-      }
-    };
-
-    fetchUsers();
-    fetchCurrentUser();
+    fetchData();
   }, []);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-    handleChange(e);
-  };
-
   const handleChange = (e) => {
-    if (e.target.name === "image") {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.files[0],
-      });
+    const { name, value, files } = e.target;
+    if (name === "image" && files.length > 0) {
+      const file = files[0];
+      setFormData((prev) => ({ ...prev, image: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result);
+      reader.readAsDataURL(file);
     } else {
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value,
-      });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -96,11 +75,11 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
+        if (key === "image" && !value) return;
         formDataToSend.append(key, value);
       });
 
       await axiosInstance.put(`heating_boiler-detail/${item.id}/`, formDataToSend);
-
       onSuccess();
       onClose();
     } catch (error) {
@@ -113,9 +92,13 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
     <Modal open={open} onClose={onClose}>
       <div className="modal-overlay">
         <div className="modal-container">
-          <SoftTypography variant="h5" mb={2}>Isitish qozonini tahrirlash</SoftTypography>
+          <SoftTypography variant="h5" mb={2}>
+            Isitish qozonini tahrirlash
+          </SoftTypography>
+
           <div className="modal-content">
             <div className="form-grid">
+              {/* Image Upload */}
               <div className="image-upload-container">
                 <label className="image-upload-label">
                   <input
@@ -123,7 +106,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                     name="image"
                     accept="image/*"
                     className="image-upload-input"
-                    onChange={handleImageChange}
+                    onChange={handleChange}
                   />
                   <CloudUploadIcon />
                   <span>Rasmni yangilash uchun bosing</span>
@@ -138,17 +121,14 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                 </label>
               </div>
 
-
-              <label>Korxona nomi<input name="company_name" value={formData.company_name}
-                                        onChange={handleChange} /></label>
+              {/* Form Fields */}
+              <label>Korxona nomi<input name="company_name" value={formData.company_name} onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date}
-                                                   onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number}
-                                          onChange={handleChange} /></label>
-              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location}
-                                            onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
+              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
+
               <label>
                 Holati
                 <select name="technical_condition" value={formData.technical_condition} onChange={handleChange}>
@@ -156,6 +136,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                   <option value="faulty">Nosoz</option>
                 </select>
               </label>
+
               <label>Yoqilg‘i turi<input name="fuel_type" value={formData.fuel_type} onChange={handleChange} /></label>
 
               <label>
@@ -169,9 +150,6 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
                   ))}
                 </select>
               </label>
-
-              {/* Hidden field for author (not editable) */}
-              <input type="hidden" name="author" value={formData.author} />
             </div>
           </div>
 

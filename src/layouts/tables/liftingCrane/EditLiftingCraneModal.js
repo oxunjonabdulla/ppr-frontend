@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
-import SoftTypography from "components/SoftTypography";
-import "layouts/tables/style.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import SoftTypography from "components/SoftTypography";
 import axiosInstance from "../../../axiosConfig";
+import "layouts/tables/style.css";
 
 function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
+
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -20,6 +22,7 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
     crane_width_length: "",
     responsible_person: 0,
     author: 0,
+    image: null,
   });
 
   useEffect(() => {
@@ -35,11 +38,36 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
         under_crane_path_length: item.under_crane_path_length || "",
         crane_width_length: item.crane_width_length || "",
         responsible_person: item.responsible_person || 0,
-        author: item.author || 0,
+        author: localStorage.getItem("userId") || item.author || 0,
+        image: null,
       });
       setPreviewImage(item.image || null);
     }
   }, [item]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Foydalanuvchilarni yuklashda xatolik:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
+    if (type === "checkbox") {
+      setFormData({ ...formData, [name]: checked });
+    } else if (name === "image") {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -49,19 +77,8 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
-      setFormData({
-        ...formData,
-        image: file,
-      });
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    handleChange(e);
   };
 
   const handleSubmit = async () => {
@@ -70,18 +87,18 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
       Object.keys(formData).forEach((key) => {
         if (key === "manufacture_date" && formData[key]) {
           formDataToSend.append(key, new Date(formData[key]).toISOString().split("T")[0]);
+        } else if (key === "image") {
+          if (formData.image) {
+            formDataToSend.append("image", formData.image);
+          }
         } else {
           formDataToSend.append(key, formData[key]);
         }
       });
 
-      await axiosInstance.put(
-        `lifting_crane-detail/${item.id}/`,
-        formDataToSend
-      );
-
-      onSuccess(); // trigger table refresh
-      onClose();   // close modal
+      await axiosInstance.put(`lifting_crane-detail/${item.id}/`, formDataToSend);
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error("Tahrirlashda xatolik:", error.response?.data || error.message);
       alert("Tahrirlashda xatolik yuz berdi. Iltimos, qaytadan urinib ko‘ring.");
@@ -131,8 +148,16 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
               </label>
               <label>Kran osti yo‘li uzunligi<input name="under_crane_path_length" value={formData.under_crane_path_length} onChange={handleChange} /></label>
               <label>Kran eni uzunligi<input name="crane_width_length" value={formData.crane_width_length} onChange={handleChange} /></label>
-              <label>Mas’ul shaxs ID<input type="number" name="responsible_person" value={formData.responsible_person} onChange={handleChange} /></label>
-              <label>Muallif ID<input type="number" name="author" value={formData.author} onChange={handleChange} /></label>
+              <label>
+                Mas’ul shaxs
+                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
           <div className="modal-actions">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import SoftTypography from "components/SoftTypography";
@@ -7,6 +7,30 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import axiosInstance from "../../../axiosConfig";
 
 function AddPressureVesselModal({ open, onClose, onSuccess }) {
+  const [userList, setUserList] = useState([]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axiosInstance.get("user/me/");
+        setCurrentUserId(res.data.id);
+        setFormData((prev) => ({ ...prev, author: res.data.id }));
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    fetchUsers();
+    fetchCurrentUser();
+  }, []);
   const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     company_name: "",
@@ -17,8 +41,8 @@ function AddPressureVesselModal({ open, onClose, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     category_name: "",
-    responsible_person: 0,
-    author: 0,
+    responsible_person: "",
+    author: "",
   });
 
   const handleImageChange = (e) => {
@@ -58,7 +82,7 @@ function AddPressureVesselModal({ open, onClose, onSuccess }) {
       });
 
       const response = await axiosInstance.post(
-        "https://api.ppr.vchdqarshi.uz/api/pressure_vessel-list-create/",
+        "pressure_vessel-list-create/",
         formDataToSend);
 
       onSuccess();
@@ -176,24 +200,21 @@ function AddPressureVesselModal({ open, onClose, onSuccess }) {
               </label>
 
               <label>
-                Mas&#39;ul shaxs ID
-                <input
-                  type="number"
+                Mas&#39;ul shaxs
+                <select
                   name="responsible_person"
                   value={formData.responsible_person}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Tanlang</option>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
               </label>
-
-              <label>
-                Muallif ID
-                <input
-                  type="number"
-                  name="author"
-                  value={formData.author}
-                  onChange={handleChange}
-                />
-              </label>
+              <input type="hidden" name="author" value={formData.author} />
             </div>
           </div>
 

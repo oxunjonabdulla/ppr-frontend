@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
-import SoftTypography from "components/SoftTypography";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import "layouts/tables/style.css";
+import SoftTypography from "components/SoftTypography";
 import axiosInstance from "../../../axiosConfig";
+import "layouts/tables/style.css";
 
 function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -24,34 +25,36 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
     image: null,
   });
 
+  // Populate form with item data
   useEffect(() => {
     if (item) {
       setFormData({
-        company_name: item.company_name || "",
-        detail_name: item.detail_name || "",
-        manufacture_date: item.manufacture_date || "",
-        factory_number: item.factory_number || "",
-        registration_number: item.registration_number || "",
-        installation_location: item.installation_location || "",
-        technical_condition: item.technical_condition || "working",
-        is_conserved: item.is_conserved || false,
-        conservation_reason: item.conservation_reason || "",
-        notes: item.notes || "",
-        responsible_person: item.responsible_person || 0,
-        author: item.author || 0,
+        ...item,
         image: null,
+        author: localStorage.getItem("userId") || item.author,
       });
       setPreviewImage(item.image || null);
     }
   }, [item]);
 
+  // Load user list
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Foydalanuvchilarni yuklashda xatolik:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
+      reader.onloadend = () => setPreviewImage(reader.result);
       reader.readAsDataURL(file);
     }
     handleChange(e);
@@ -60,32 +63,26 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     if (type === "checkbox") {
-      setFormData({ ...formData, [name]: checked });
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else if (name === "image") {
-      setFormData({ ...formData, image: files[0] });
+      setFormData((prev) => ({ ...prev, image: files[0] }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async () => {
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
+      Object.entries(formData).forEach(([key, value]) => {
         if (key === "image") {
-          if (formData[key] instanceof File) {
-            formDataToSend.append(key, formData[key]);
-          }
+          if (value instanceof File) formDataToSend.append(key, value);
         } else {
-          formDataToSend.append(key, formData[key]);
+          formDataToSend.append(key, value);
         }
       });
 
-      await axiosInstance.put(
-        `lathe_machine-detail/${item.id}/`,
-        formDataToSend
-      );
-
+      await axiosInstance.put(`lathe_machine-detail/${item.id}/`, formDataToSend);
       onSuccess();
       onClose();
     } catch (error) {
@@ -101,6 +98,7 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
           <SoftTypography variant="h5" mb={2}>
             Tokarlik dastgohini tahrirlash
           </SoftTypography>
+
           <div className="modal-content">
             <div className="form-grid">
               <div className="image-upload-container">
@@ -129,7 +127,7 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
               <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro&#39;yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
               <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
 
               <label>
@@ -162,8 +160,17 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
                 <textarea name="notes" rows={3} value={formData.notes} onChange={handleChange} />
               </label>
 
-              <label>Mas’ul shaxs ID<input type="number" name="responsible_person" value={formData.responsible_person} onChange={handleChange} /></label>
-              <label>Muallif ID<input type="number" name="author" value={formData.author} onChange={handleChange} /></label>
+              <label>
+                Mas’ul shaxs
+                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                  <option value="">Tanlang</option>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
 

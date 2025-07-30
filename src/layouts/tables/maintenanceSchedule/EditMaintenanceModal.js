@@ -15,12 +15,11 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
     next_maintenance_date: "",
     is_completed: false,
     completed_date: "",
-    equipment: 0,  // Changed from equipment_id to equipment to match AddModal
+    equipment: 0,
     assigned_to: 0,
     completed_by: 0,
   });
 
-  // Fetch equipment, users, and current maintenance item
   useEffect(() => {
     const fetchEquipments = async () => {
       try {
@@ -42,14 +41,9 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
 
     const fetchMaintenance = async () => {
       try {
-        console.log("Fetching maintenance with ID:", maintenanceId); // Debug log
         const res = await axiosInstance.get(`maintenance-detail/${maintenanceId}/`);
-        console.log("Maintenance data received:", res.data); // Debug log
-
-        // Access the nested data property
         const data = res.data.data || res.data;
 
-        // Format dates properly - ensure they're in YYYY-MM-DD format
         const formatDateForInput = (dateString) => {
           if (!dateString) return "";
           const date = new Date(dateString);
@@ -63,7 +57,7 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
           next_maintenance_date: formatDateForInput(data.next_maintenance_date),
           is_completed: data.is_completed || false,
           completed_date: formatDateForInput(data.completed_date),
-          equipment: data.equipment?.id || data.equipment_id || 0,  // Changed to equipment
+          equipment: data.equipment?.id || data.equipment_id || 0,
           assigned_to: data.assigned_to?.id || data.assigned_to || 0,
           completed_by: data.completed_by?.id || data.completed_by || 0,
         });
@@ -76,7 +70,6 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
     if (open) {
       fetchEquipments();
       fetchUsers();
-      // Only fetch maintenance data if we have a valid ID
       if (maintenanceId && typeof maintenanceId === "number") {
         fetchMaintenance();
       }
@@ -93,17 +86,13 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
-    // If already in correct format, return as is
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return dateString;
-    }
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString;
     const date = new Date(dateString);
     return date.toISOString().split("T")[0];
   };
 
   const handleSubmit = async () => {
     try {
-      // Validate required fields first (matching AddModal validation)
       if (!formData.equipment || !formData.maintenance_type || !formData.scheduled_date) {
         alert("Iltimos, uskuna ID, texnik xizmat turi va ko'rik sanasini kiriting!");
         return;
@@ -121,11 +110,8 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
         completed_by_id: formData.completed_by ? Number(formData.completed_by) : null,
       };
 
-
-      console.log("Submitting payload:", payload); // Debug log
-
       await axiosInstance.put(`maintenance-detail/${maintenanceId}/`, payload);
-      alert("Muvaffaqiyatli yangilandi!"); // Success message
+      alert("Muvaffaqiyatli yangilandi!");
       onSuccess();
       onClose();
     } catch (error) {
@@ -139,7 +125,6 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
       <div className="modal-overlay">
         <div className="modal-container">
           <SoftTypography variant="h5" mb={2}>Texnik xizmatni tahrirlash</SoftTypography>
-
           <div className="modal-content">
             <div className="form-grid">
               <label>
@@ -175,8 +160,7 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
 
               <label>
                 Keyingi ko&#39;rik sanasi
-                <input type="date" name="next_maintenance_date" value={formData.next_maintenance_date}
-                       onChange={handleChange} />
+                <input type="date" name="next_maintenance_date" value={formData.next_maintenance_date} onChange={handleChange} />
               </label>
 
               <label className="checkbox-label">

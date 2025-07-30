@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
-import SoftTypography from "components/SoftTypography";
-import axios from "axios";
-import "layouts/tables/style.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import SoftTypography from "components/SoftTypography";
 import axiosInstance from "../../../axiosConfig";
+import "layouts/tables/style.css";
 
 function AddLatheMachineModal({ open, onClose, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -20,54 +20,55 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
     is_conserved: false,
     conservation_reason: "",
     notes: "",
-    responsible_person: 0,
-    author: 0,
+    responsible_person: "",
+    author: "",
+    image: null,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [usersRes, meRes] = await Promise.all([
+          axiosInstance.get("users/"),
+          axiosInstance.get("user/me/"),
+        ]);
+        setUserList(usersRes.data.results);
+        setFormData((prev) => ({ ...prev, author: meRes.data.id }));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData((prev) => ({ ...prev, image: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
+      reader.onloadend = () => setPreviewImage(reader.result);
       reader.readAsDataURL(file);
     }
-    handleChange(e);
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
   const handleSubmit = async () => {
     try {
       const formDataToSend = new FormData();
-      formData.author = Number(formData.author);
-      formData.responsible_person = Number(formData.responsible_person);
-
-      // Append all fields correctly
-      Object.keys(formData).forEach(key => {
-        if (key === "image") {
-          // Only append if it's a File object
-          if (formData[key] instanceof File) {
-            formDataToSend.append(key, formData[key]);
-          }
-        } else {
-          formDataToSend.append(key, formData[key]);
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formDataToSend.append(key, value);
         }
       });
 
-
-      const response = await axiosInstance.post(
-        "https://api.ppr.vchdqarshi.uz/api/lathe_machine-list-create/",
-        formDataToSend,
-      );
-
+      await axiosInstance.post("lathe_machine-list-create/", formDataToSend);
       onSuccess();
       onClose();
     } catch (error) {
@@ -80,7 +81,10 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
     <Modal open={open} onClose={onClose}>
       <div className="modal-overlay">
         <div className="modal-container">
-          <SoftTypography variant="h5" mb={2}>Yangi tokarlik dastgohi qo&#39;shish</SoftTypography>
+          <SoftTypography variant="h5" mb={2}>
+            Yangi tokarlik dastgohi qo&#39;shish
+          </SoftTypography>
+
           <div className="modal-content">
             <div className="form-grid">
               <div className="image-upload-container">
@@ -105,39 +109,16 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
                 </label>
               </div>
 
-              <label>
-                Korxona nomi
-                <input name="company_name" onChange={handleChange} />
-              </label>
-
-              <label>
-                Detal nomi
-                <input name="detail_name" onChange={handleChange} />
-              </label>
-
-              <label>
-                Ishlab chiqarilgan sana
-                <input type="date" name="manufacture_date" onChange={handleChange} />
-              </label>
-
-              <label>
-                Zavod raqami
-                <input name="factory_number" onChange={handleChange} />
-              </label>
-
-              <label>
-                Ro&#39;yxat raqami
-                <input name="registration_number" onChange={handleChange} />
-              </label>
-
-              <label>
-                O&#39;rnatilgan joyi
-                <input name="installation_location" onChange={handleChange} />
-              </label>
+              <label>Korxona nomi<input name="company_name" onChange={handleChange} /></label>
+              <label>Detal nomi<input name="detail_name" onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" onChange={handleChange} /></label>
+              <label>Zavod raqami<input name="factory_number" onChange={handleChange} /></label>
+              <label>Ro&#39;yxat raqami<input name="registration_number" onChange={handleChange} /></label>
+              <label>O&#39;rnatilgan joyi<input name="installation_location" onChange={handleChange} /></label>
 
               <label>
                 Holati
-                <select name="technical_condition" onChange={handleChange}>
+                <select name="technical_condition" onChange={handleChange} value={formData.technical_condition}>
                   <option value="working">Soz</option>
                   <option value="faulty">Nosoz</option>
                 </select>
@@ -156,48 +137,38 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
               {formData.is_conserved && (
                 <label>
                   Konservatsiya sababi
-                  <input
-                    name="conservation_reason"
-                    onChange={handleChange}
-                  />
+                  <input name="conservation_reason" onChange={handleChange} />
                 </label>
               )}
 
               <label>
                 Tavsiyalar
-                <textarea
-                  name="notes"
-                  onChange={handleChange}
-                  rows={3}
-                />
+                <textarea name="notes" rows={3} onChange={handleChange} />
               </label>
 
               <label>
-                Mas&#39;ul shaxs ID
-                <input
-                  type="number"
+                Mas&#39;ul shaxs
+                <select
                   name="responsible_person"
+                  value={formData.responsible_person}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Tanlang</option>
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
               </label>
 
-              <label>
-                Muallif ID
-                <input
-                  type="number"
-                  name="author"
-                  onChange={handleChange}
-                />
-              </label>
+              <input type="hidden" name="author" value={formData.author} />
             </div>
           </div>
+
           <div className="modal-actions">
-            <button className="cancel-btn" onClick={onClose}>
-              Bekor qilish
-            </button>
-            <button className="submit-btn" onClick={handleSubmit}>
-              Qo&#39;shish
-            </button>
+            <button className="cancel-btn" onClick={onClose}>Bekor qilish</button>
+            <button className="submit-btn" onClick={handleSubmit}>Qo&#39;shish</button>
           </div>
         </div>
       </div>

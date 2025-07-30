@@ -1,6 +1,6 @@
 // EditWeldingEquipmentModal.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import SoftTypography from "components/SoftTypography";
@@ -10,6 +10,7 @@ import "layouts/tables/style.css";
 
 function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
   const [previewImage, setPreviewImage] = useState(null);
+  const [userList, setUserList] = useState([]);
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -51,6 +52,18 @@ function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
     }
   };
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get("users/");
+        setUserList(res.data.results);
+      } catch (error) {
+        console.error("Foydalanuvchilarni yuklashda xatolik:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -76,8 +89,8 @@ function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
       });
 
       await axiosInstance.put(
-        `https://api.ppr.vchdqarshi.uz/api/welding_equipment-detail/${data.id}/`,
-        formDataToSend
+        `welding_equipment-detail/${data.id}/`,
+        formDataToSend,
       );
 
       onSuccess();
@@ -179,20 +192,19 @@ function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
                   <input name="conservation_reason" value={formData.conservation_reason} onChange={handleChange} />
                 </label>
               )}
-
               <label>
-                Mas&#39;ul shaxs ID
-                <input
-                  type="number"
+                Mas’ul shaxs
+                <select
                   name="responsible_person"
                   value={formData.responsible_person}
                   onChange={handleChange}
-                />
-              </label>
-
-              <label>
-                Muallif ID
-                <input type="number" name="author" value={formData.author} onChange={handleChange} />
+                >
+                  {userList.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} ({user.username})
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
           </div>
