@@ -93,7 +93,7 @@ function HeatingBoilersTables() {
         container
       />
     ),
-    "Mas'ul shaxs": item.responsible_person || "-",
+    "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Qozon turi":
       item.type === "heating_boiler" ? "Isitish qozoni" : item.type || "-",
     "Yoqilg'i": item.fuel_type || "-",

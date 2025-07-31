@@ -89,7 +89,7 @@ function LiftingCraneTables() {
         container
       />
     ),
-    "Mas'ul shaxs": item.responsible_person || "-",
+    "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Kran osti yo‘li uzunligi": item.under_crane_path_length || "-",
     "Kran eni uzunligi": item.crane_width_length || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),

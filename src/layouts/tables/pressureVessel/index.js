@@ -85,7 +85,7 @@ function PressureVesselTables() {
         container
       />
     ),
-    "Mas'ul shaxs": item.responsible_person || "-",
+    "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Sig‘imning kategoriyasi": item.category_name || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),

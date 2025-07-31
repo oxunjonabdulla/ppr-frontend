@@ -84,7 +84,7 @@ function LatheMachineTables() {
         container
       />
     ),
-    "Mas'ul shaxs": item.responsible_person || "-",
+    "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Konservatsiyaga olish": item.conservation_date ? formatUzbekDate(item.conservation_date) : "-",
     "Konservatsiya sababi": item.conservation_reason || "-",
     "Tavsiyalar": item.recommendations || "-",

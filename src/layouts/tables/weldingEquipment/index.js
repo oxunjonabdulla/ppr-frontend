@@ -97,7 +97,7 @@ function WeldingEquipmentTables() {
         container
       />
     ),
-    "Mas'ul shaxs": item.responsible_person || "-",
+    "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Konservatsiyaga olish": (
       <Switch
         checked={Boolean(item.conservation_date)}
