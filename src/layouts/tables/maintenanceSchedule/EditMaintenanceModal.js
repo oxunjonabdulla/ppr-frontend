@@ -177,7 +177,8 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
 
               <label>
                 Uskuna tanlang
-                <select name="equipment" value={formData.equipment} onChange={handleChange}>
+                <select name="equipment" value={String(formData.equipment)} onChange={handleChange}>
+
                   <option value="">Uskunani tanlang</option>
                   {equipmentList.map((eq) => (
                     <option key={eq.id} value={eq.id}>
@@ -189,7 +190,8 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
 
               <label>
                 Mas&#39;ul foydalanuvchi
-                <select name="assigned_to" value={formData.assigned_to} onChange={handleChange}>
+                <select name="assigned_to" value={String(formData.assigned_to)} onChange={handleChange}>
+
                   <option value="">Foydalanuvchini tanlang</option>
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>
@@ -202,7 +204,8 @@ function EditMaintenanceModal({ open, onClose, onSuccess, maintenanceId }) {
               {formData.is_completed && (
                 <label>
                   Bajargan foydalanuvchi
-                  <select name="completed_by" value={formData.completed_by} onChange={handleChange}>
+                 <select name="completed_by" value={String(formData.completed_by)} onChange={handleChange}>
+
                     <option value="">Foydalanuvchini tanlang</option>
                     {userList.map((user) => (
                       <option key={user.id} value={user.id}>

@@ -20,22 +20,33 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
     is_conserved: false,
     conservation_reason: "",
     notes: "",
-    responsible_person: 0,
+    responsible_person_id: "",
     author: 0,
     image: null,
   });
 
-  // Populate form with item data
   useEffect(() => {
     if (item) {
       setFormData({
-        ...item,
+        company_name: item.company_name || "",
+        detail_name: item.detail_name || "",
+        manufacture_date: item.manufacture_date || "",
+        factory_number: item.factory_number || "",
+        registration_number: item.registration_number || "",
+        installation_location: item.installation_location || "",
+        technical_condition: item.technical_condition || "working",
+        is_conserved: item.is_conserved || false,
+        conservation_reason: item.conservation_reason || "",
+        notes: item.notes || "",
+        responsible_person_id: item.responsible_person?.id || "",
+        author: localStorage.getItem("userId") || item.author || 0,
         image: null,
-        author: localStorage.getItem("userId") || item.author,
       });
+
       setPreviewImage(item.image || null);
     }
   }, [item]);
+
 
   // Load user list
   useEffect(() => {
@@ -76,11 +87,14 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "image") {
-          if (value instanceof File) formDataToSend.append(key, value);
+          if (value instanceof File) {
+            formDataToSend.append(key, value);
+          }
         } else {
-          formDataToSend.append(key, value);
+          formDataToSend.append(key, String(value));
         }
       });
+
 
       await axiosInstance.put(`lathe_machine-detail/${item.id}/`, formDataToSend);
       onSuccess();
@@ -123,12 +137,16 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
                 </label>
               </div>
 
-              <label>Korxona nomi<input name="company_name" value={formData.company_name} onChange={handleChange} /></label>
+              <label>Korxona nomi<input name="company_name" value={formData.company_name}
+                                        onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date}
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
-              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number}
+                                          onChange={handleChange} /></label>
+              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location}
+                                            onChange={handleChange} /></label>
 
               <label>
                 Holati
@@ -162,14 +180,19 @@ function EditLatheMachineModal({ open, onClose, item, onSuccess }) {
 
               <label>
                 Mas’ul shaxs
-                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                <select
+                  name="responsible_person_id"
+                  value={String(formData.responsible_person_id)}
+                  onChange={handleChange}
+                >
                   <option value="">Tanlang</option>
                   {userList.map((user) => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.id} value={String(user.id)}>
                       {user.name} ({user.username})
                     </option>
                   ))}
                 </select>
+
               </label>
             </div>
           </div>

@@ -20,7 +20,7 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
     technical_condition: "working",
     under_crane_path_length: "",
     crane_width_length: "",
-    responsible_person: 0,
+    responsible_person_id: 0,
     author: 0,
     image: null,
   });
@@ -37,7 +37,7 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
         technical_condition: item.technical_condition || "working",
         under_crane_path_length: item.under_crane_path_length || "",
         crane_width_length: item.crane_width_length || "",
-        responsible_person: item.responsible_person || 0,
+        responsible_person_id: item.responsible_person?.id || 0,
         author: localStorage.getItem("userId") || item.author || 0,
         image: null,
       });
@@ -77,9 +77,10 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
+      setFormData((prev) => ({ ...prev, image: file }));
     }
-    handleChange(e);
   };
+
 
   const handleSubmit = async () => {
     try {
@@ -134,29 +135,41 @@ function EditLiftingCraneModal({ open, onClose, item, onSuccess }) {
                 </label>
               </div>
 
-              <label>Korxona nomi<input name="company_name" value={formData.company_name} onChange={handleChange} /></label>
+              <label>Korxona nomi<input name="company_name" value={formData.company_name}
+                                        onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date}
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
-              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number}
+                                          onChange={handleChange} /></label>
+              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location}
+                                            onChange={handleChange} /></label>
               <label>Holati
                 <select name="technical_condition" value={formData.technical_condition} onChange={handleChange}>
                   <option value="working">Soz</option>
                   <option value="faulty">Nosoz</option>
                 </select>
               </label>
-              <label>Kran osti yo‘li uzunligi<input name="under_crane_path_length" value={formData.under_crane_path_length} onChange={handleChange} /></label>
-              <label>Kran eni uzunligi<input name="crane_width_length" value={formData.crane_width_length} onChange={handleChange} /></label>
+              <label>Kran osti yo‘li uzunligi<input name="under_crane_path_length"
+                                                    value={formData.under_crane_path_length} onChange={handleChange} /></label>
+              <label>Kran eni uzunligi<input name="crane_width_length" value={formData.crane_width_length}
+                                             onChange={handleChange} /></label>
               <label>
                 Mas’ul shaxs
-                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                <select
+                  name="responsible_person_id"
+                  value={String(formData.responsible_person_id)}
+                  onChange={handleChange}
+                >
+                  <option value="">Tanlang</option>
                   {userList.map((user) => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.id} value={String(user.id)}>
                       {user.name} ({user.username})
                     </option>
                   ))}
                 </select>
+
               </label>
             </div>
           </div>

@@ -19,7 +19,7 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
     technical_condition: "working",
     under_crane_path_length: "",
     crane_width_length: "",
-    responsible_person: "",
+    responsible_person_id: "",
     author: "",
     image: null,
   });
@@ -139,15 +139,21 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
               </label>
 
               <label>Kran osti yo&#39;li uzunligi
-                <input name="under_crane_path_length" value={formData.under_crane_path_length} onChange={handleChange} />
+                <input name="under_crane_path_length" value={formData.under_crane_path_length}
+                       onChange={handleChange} />
               </label>
 
               <label>Kran eni uzunligi
                 <input name="crane_width_length" value={formData.crane_width_length} onChange={handleChange} />
               </label>
 
-              <label>Mas&#39;ul shaxs
-                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+              <label>
+                Mas&#39;ul shaxs
+                <select
+                  name="responsible_person_id"
+                  value={String(formData.responsible_person_id)}
+                  onChange={handleChange}
+                >
                   <option value="">Tanlang</option>
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>

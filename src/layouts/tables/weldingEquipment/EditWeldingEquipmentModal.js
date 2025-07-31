@@ -21,7 +21,7 @@ function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
     technical_condition: "working",
     is_conserved: false,
     conservation_reason: "",
-    responsible_person: 0,
+    responsible_person_id: 0,
     author: 0,
     image: null,
   });
@@ -194,11 +194,12 @@ function EditWeldingEquipmentModal({ open, onClose, data, onSuccess }) {
               )}
               <label>
                 Mas’ul shaxs
-                <select
-                  name="responsible_person"
-                  value={formData.responsible_person}
-                  onChange={handleChange}
-                >
+               <select
+  name="responsible_person_id"
+  value={formData.responsible_person_id}
+  onChange={handleChange}
+>
+
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.username})

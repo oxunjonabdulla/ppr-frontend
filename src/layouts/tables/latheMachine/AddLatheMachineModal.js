@@ -20,7 +20,7 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
     is_conserved: false,
     conservation_reason: "",
     notes: "",
-    responsible_person: "",
+    responsible_person_id: "",
     author: "",
     image: null,
   });
@@ -111,7 +111,8 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
 
               <label>Korxona nomi<input name="company_name" onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date"
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" onChange={handleChange} /></label>
               <label>Ro&#39;yxat raqami<input name="registration_number" onChange={handleChange} /></label>
               <label>O&#39;rnatilgan joyi<input name="installation_location" onChange={handleChange} /></label>
@@ -149,17 +150,18 @@ function AddLatheMachineModal({ open, onClose, onSuccess }) {
               <label>
                 Mas&#39;ul shaxs
                 <select
-                  name="responsible_person"
-                  value={formData.responsible_person}
+                  name="responsible_person_id"
+                  value={String(formData.responsible_person_id)}
                   onChange={handleChange}
                 >
                   <option value="">Tanlang</option>
                   {userList.map((user) => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.id} value={String(user.id)}>
                       {user.name} ({user.username})
                     </option>
                   ))}
                 </select>
+
               </label>
 
               <input type="hidden" name="author" value={formData.author} />

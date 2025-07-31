@@ -19,29 +19,11 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     category_name: "",
-    responsible_person: 0,
+    responsible_person_id: 0,
     author: 0,
     image: null,
   });
 
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        company_name: item.company_name || "",
-        detail_name: item.detail_name || "",
-        manufacture_date: item.manufacture_date || "",
-        factory_number: item.factory_number || "",
-        registration_number: item.registration_number || "",
-        installation_location: item.installation_location || "",
-        technical_condition: item.technical_condition || "working",
-        category_name: item.category_name || "",
-        responsible_person: item.responsible_person || 0,
-        author: item.author || 0,
-        image: null,
-      });
-      setPreviewImage(item.image || null);
-    }
-  }, [item]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -170,11 +152,7 @@ function EditPressureVesselModal({ open, onClose, item, onSuccess }) {
                                                onChange={handleChange} /></label>
               <label>
                 Mas’ul shaxs
-                <select
-                  name="responsible_person"
-                  value={formData.responsible_person}
-                  onChange={handleChange}
-                >
+               <select name="responsible_person_id" value={formData.responsible_person_id} onChange={handleChange}>
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.username})

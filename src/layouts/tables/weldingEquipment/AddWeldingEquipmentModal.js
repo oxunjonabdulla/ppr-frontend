@@ -21,7 +21,6 @@ function AddWeldingEquipmentModal({ open, onClose, onSuccess }) {
     const fetchCurrentUser = async () => {
       try {
         const res = await axiosInstance.get("user/me/");
-        setCurrentUserId(res.data.id);
         setFormData((prev) => ({ ...prev, author: res.data.id }));
       } catch (error) {
         console.error("Error fetching current user:", error);
@@ -42,8 +41,10 @@ function AddWeldingEquipmentModal({ open, onClose, onSuccess }) {
     technical_condition: "working",
     is_conserved: false,
     conservation_reason: "",
-    responsible_person: "",
+    responsible_person_id: "",
     author: "",
+    image: null,
+
   });
 
   const handleImageChange = (e) => {
@@ -73,16 +74,18 @@ function AddWeldingEquipmentModal({ open, onClose, onSuccess }) {
     try {
       const formDataToSend = new FormData();
 
-      // Append all fields including the image
-      Object.keys(formData).forEach(key => {
-        if (key === "manufacture_date" && formData[key]) {
-          formDataToSend.append(key, new Date(formData[key]).toISOString().split("T")[0]);
-        } else if (key === "is_conserved") {
-          formDataToSend.append(key, formData[key] ? "true" : "false");
-        } else {
-          formDataToSend.append(key, formData[key]);
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null && value !== "") {
+          if (key === "manufacture_date") {
+            formDataToSend.append(key, new Date(value).toISOString().split("T")[0]);
+          } else if (key === "is_conserved") {
+            formDataToSend.append(key, value ? "true" : "false");
+          } else {
+            formDataToSend.append(key, value);
+          }
         }
       });
+
 
       const response = await axiosInstance.post(
         "welding_equipment-list-create/",
@@ -217,8 +220,8 @@ function AddWeldingEquipmentModal({ open, onClose, onSuccess }) {
               <label>
                 Mas&#39;ul shaxs
                 <select
-                  name="responsible_person"
-                  value={formData.responsible_person}
+                  name="responsible_person_id"
+                  value={formData.responsible_person_id}
                   onChange={handleChange}
                 >
                   <option value="">Tanlang</option>

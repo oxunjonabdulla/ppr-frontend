@@ -18,7 +18,7 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     fuel_type: "",
-    responsible_person: "",
+    responsible_person_id: "",
     image: null,
     author: "",
   });
@@ -34,7 +34,8 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
         installation_location: item.installation_location || "",
         technical_condition: item.technical_condition || "working",
         fuel_type: item.fuel_type || "",
-        responsible_person: item.responsible_person || "",
+        responsible_person_id: item.responsible_person?.id || "",  // ✅ correct field here
+
         image: null,
         author: item.author || "",
       });
@@ -122,12 +123,16 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
               </div>
 
               {/* Form Fields */}
-              <label>Korxona nomi<input name="company_name" value={formData.company_name} onChange={handleChange} /></label>
+              <label>Korxona nomi<input name="company_name" value={formData.company_name}
+                                        onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" value={formData.detail_name} onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date} onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" value={formData.manufacture_date}
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" value={formData.factory_number} onChange={handleChange} /></label>
-              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number} onChange={handleChange} /></label>
-              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location} onChange={handleChange} /></label>
+              <label>Ro‘yxat raqami<input name="registration_number" value={formData.registration_number}
+                                          onChange={handleChange} /></label>
+              <label>O‘rnatilgan joyi<input name="installation_location" value={formData.installation_location}
+                                            onChange={handleChange} /></label>
 
               <label>
                 Holati
@@ -140,8 +145,11 @@ function EditHeatingBoilerModal({ open, onClose, item, onSuccess }) {
               <label>Yoqilg‘i turi<input name="fuel_type" value={formData.fuel_type} onChange={handleChange} /></label>
 
               <label>
-                Mas’ul shaxs
-                <select name="responsible_person" value={formData.responsible_person} onChange={handleChange}>
+                Mas&#39;ul shaxs
+                <select name="responsible_person_id"
+                        value={formData.responsible_person_id}
+                        onChange={handleChange}>
+
                   <option value="">Tanlang</option>
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>

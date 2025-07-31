@@ -20,7 +20,7 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     fuel_type: "",
-    responsible_person: 0,
+    responsible_person_id: 0,
     image: null,
   });
 
@@ -53,6 +53,8 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
+  console.log("Image file:", formData.image);
+
 
   const handleSubmit = async () => {
     try {
@@ -109,7 +111,8 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
               {/* Form Fields */}
               <label>Korxona nomi<input name="company_name" onChange={handleChange} /></label>
               <label>Detal nomi<input name="detail_name" onChange={handleChange} /></label>
-              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date" onChange={handleChange} /></label>
+              <label>Ishlab chiqarilgan sana<input type="date" name="manufacture_date"
+                                                   onChange={handleChange} /></label>
               <label>Zavod raqami<input name="factory_number" onChange={handleChange} /></label>
               <label>Ro‘yxat raqami<input name="registration_number" onChange={handleChange} /></label>
               <label>O‘rnatilgan joyi<input name="installation_location" onChange={handleChange} /></label>
@@ -123,11 +126,14 @@ function AddHeatingBoilerModal({ open, onClose, onSuccess }) {
               </label>
 
               <label>Yoqilg‘i turi<input name="fuel_type" onChange={handleChange} /></label>
-
               <label>
-                Mas’ul shaxs
-                <select name="responsible_person" onChange={handleChange} defaultValue="">
-                  <option value="">Foydalanuvchini tanlang</option>
+                Mas&#39;ul shaxs
+                <select
+                  name="responsible_person_id"
+                  value={formData.responsible_person_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Tanlang</option>
                   {userList.map((user) => (
                     <option key={user.id} value={user.id}>
                       {user.name} ({user.username})

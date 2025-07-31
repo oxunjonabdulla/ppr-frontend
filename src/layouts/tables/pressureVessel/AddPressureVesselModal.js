@@ -41,8 +41,10 @@ function AddPressureVesselModal({ open, onClose, onSuccess }) {
     installation_location: "",
     technical_condition: "working",
     category_name: "",
-    responsible_person: "",
+    responsible_person_id: "",
     author: "",
+    image: null,
+
   });
 
   const handleImageChange = (e) => {
@@ -202,8 +204,8 @@ function AddPressureVesselModal({ open, onClose, onSuccess }) {
               <label>
                 Mas&#39;ul shaxs
                 <select
-                  name="responsible_person"
-                  value={formData.responsible_person}
+                  name="responsible_person_id"
+                  value={formData.responsible_person_id}
                   onChange={handleChange}
                 >
                   <option value="">Tanlang</option>
