@@ -3,12 +3,17 @@ import PropTypes from "prop-types";
 import Modal from "@mui/material/Modal";
 import SoftTypography from "components/SoftTypography";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import "layouts/tables/style.css";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import axiosInstance from "../../../axiosConfig";
+import LocationPicker from "../LocationPicker"; // ✅ Correct path
+import "layouts/tables/style.css";
 
 function AddLiftingCraneModal({ open, onClose, onSuccess }) {
   const [userList, setUserList] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
   const [formData, setFormData] = useState({
     company_name: "",
     detail_name: "",
@@ -22,6 +27,9 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
     responsible_person_id: "",
     author: "",
     image: null,
+    latitude: null,
+    longitude: null,
+    location_address: "",
   });
 
   useEffect(() => {
@@ -55,15 +63,71 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleLocationSelect = (locationData) => {
+    setSelectedLocation(locationData);
+    setFormData((prev) => ({
+      ...prev,
+      latitude: locationData.lat,
+      longitude: locationData.lng,
+      location_address: locationData.address || "",
+    }));
+    setShowLocationPicker(false);
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const geocoder = window.google && window.google.maps
+          ? new window.google.maps.Geocoder()
+          : null;
+
+        if (geocoder) {
+          geocoder.geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => {
+              const address = status === "OK" && results[0]
+                ? results[0].formatted_address
+                : "Manzil topilmadi";
+
+              handleLocationSelect({
+                lat: latitude,
+                lng: longitude,
+                address: address,
+              });
+            }
+          );
+        } else {
+          handleLocationSelect({
+            lat: latitude,
+            lng: longitude,
+            address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+          });
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Joylashuvni aniqlashda xatolik yuz berdi.");
+      }
+    );
+  };
+
   const handleSubmit = async () => {
     try {
       const formDataToSend = new FormData();
       Object.keys(formData).forEach((key) => {
-        if (formData[key]) {
-          const value =
-            key === "manufacture_date"
-              ? new Date(formData[key]).toISOString().split("T")[0]
-              : formData[key];
+        const value =
+          key === "manufacture_date" && formData[key]
+            ? new Date(formData[key]).toISOString().split("T")[0]
+            : formData[key];
+
+        if (value !== null && value !== undefined && value !== "") {
           formDataToSend.append(key, value);
         }
       });
@@ -85,6 +149,7 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
 
           <div className="modal-content">
             <div className="form-grid">
+              {/* Image Upload */}
               <div className="image-upload-container">
                 <label className="image-upload-label">
                   <input
@@ -139,16 +204,14 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
               </label>
 
               <label>Kran osti yo&#39;li uzunligi
-                <input name="under_crane_path_length" value={formData.under_crane_path_length}
-                       onChange={handleChange} />
+                <input name="under_crane_path_length" value={formData.under_crane_path_length} onChange={handleChange} />
               </label>
 
               <label>Kran eni uzunligi
                 <input name="crane_width_length" value={formData.crane_width_length} onChange={handleChange} />
               </label>
 
-              <label>
-                Mas&#39;ul shaxs
+              <label>Mas&#39;ul shaxs
                 <select
                   name="responsible_person_id"
                   value={String(formData.responsible_person_id)}
@@ -162,6 +225,43 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
                   ))}
                 </select>
               </label>
+
+              {/* 📍 Location Section */}
+              <div className="location-section" style={{ gridColumn: "1 / -1" }}>
+                <h4><LocationOnIcon /> Joylashuv</h4>
+
+                {selectedLocation ? (
+                  <div className="selected-location">
+                    <p><strong>Kenglik:</strong> {selectedLocation.lat.toFixed(6)}</p>
+                    <p><strong>Uzunlik:</strong> {selectedLocation.lng.toFixed(6)}</p>
+                    <p><strong>Manzil:</strong> {selectedLocation.address}</p>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLocation(null)}
+                      className="clear-location-btn"
+                    >
+                      Joylashuvni tozalash
+                    </button>
+                  </div>
+                ) : (
+                  <div className="location-buttons">
+                    <button
+                      type="button"
+                      onClick={getCurrentLocation}
+                      className="location-btn current-location"
+                    >
+                      📍 Joriy joylashuvni olish
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowLocationPicker(true)}
+                      className="location-btn map-select"
+                    >
+                      🗺️ Xaritadan tanlash
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -169,6 +269,15 @@ function AddLiftingCraneModal({ open, onClose, onSuccess }) {
             <button className="cancel-btn" onClick={onClose}>Bekor qilish</button>
             <button className="submit-btn" onClick={handleSubmit}>Qo‘shish</button>
           </div>
+
+          {/* 📍 Location Picker Modal */}
+          {showLocationPicker && (
+            <LocationPicker
+              open={showLocationPicker}
+              onClose={() => setShowLocationPicker(false)}
+              onLocationSelect={handleLocationSelect}
+            />
+          )}
         </div>
       </div>
     </Modal>
