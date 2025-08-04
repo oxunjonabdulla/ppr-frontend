@@ -15,8 +15,8 @@ import axios from "axios";
 import AddWeldingEquipmentModal from "./AddWeldingEquipmentModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
-import EditPressureVesselModal from "../pressureVessel/EditPressureVesselModal";
 import EditWeldingEquipmentModal from "./EditWeldingEquipmentModal";
+import ViewWeldingEquipmentModal from "./ViewWeldingEquipmentModal";
 
 function WeldingEquipmentTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +34,8 @@ function WeldingEquipmentTables() {
     return new Date(dateString).toLocaleDateString("uz-UZ", options);
   };
   const handleToggleConservation = (id) => {
-    axios.post(`/api/conservation-toggle/${id}/`)
+    axios
+      .post(`/api/conservation-toggle/${id}/`)
       .then(() => {
         // optionally refresh table or update local state
       })
@@ -47,6 +48,13 @@ function WeldingEquipmentTables() {
     if (!dateString) return "-";
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     return new Date(dateString).toLocaleString("uz-UZ", options);
+  };
+  const [viewOpen, setViewOpen] = useState(false);
+
+  // handle
+  const handleView = (item) => {
+    setSelectedItem(item);
+    setViewOpen(true);
   };
   const [editOpen, setEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -71,27 +79,29 @@ function WeldingEquipmentTables() {
   };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
-    "Rasmi": item.image ? (
-      <ImageModal src={item.image} alt="rasm" />
-    ) : "-",
+    Rasmi: item.image ? <ImageModal src={item.image} alt="rasm" /> : "-",
     "Korxona nomi": item.company_name || "-",
     "Detal nomi": item.detail_name || "-",
     "Ishlab chiqarilgan sana": formatUzbekDate(item.manufacture_date),
     "Zavod raqami": item.factory_number || "-",
     "Ro'yxat raqami": item.registration_number || "-",
     "O'rnatilgan joyi": item.installation_location || "-",
-    "Holati": (
+    Holati: (
       <SoftBadge
         variant="gradient"
         badgeContent={
-          item.technical_condition === "working" ? "Soz" :
-            item.technical_condition === "faulty" ? "Nosoz" :
-              "Noma'lum"
+          item.technical_condition === "working"
+            ? "Soz"
+            : item.technical_condition === "faulty"
+            ? "Nosoz"
+            : "Noma'lum"
         }
         color={
-          item.technical_condition === "working" ? "success" :
-            item.technical_condition === "faulty" ? "error" :
-              "secondary"
+          item.technical_condition === "working"
+            ? "success"
+            : item.technical_condition === "faulty"
+            ? "error"
+            : "secondary"
         }
         size="xs"
         container
@@ -109,14 +119,11 @@ function WeldingEquipmentTables() {
     "Konservatsiya sababi": item.conservation_reason || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
-    "Amallar": (
-      <ActionMenu
-        onEdit={() => handleEdit(item)}
-        onDelete={() => handleDelete(item)}
-      />
-    ),
+    Amallar: <ActionMenu
+      onView={() => handleView(item)}
+      onEdit={() => handleEdit(item)}
+      onDelete={() => handleDelete(item)} />,
   });
-
 
   return (
     <DashboardLayout>
@@ -150,7 +157,11 @@ function WeldingEquipmentTables() {
               data={selectedItem}
               onSuccess={() => window.location.reload()}
             />
-
+            <ViewWeldingEquipmentModal
+              open={viewOpen}
+              onClose={() => setViewOpen(false)}
+              item={selectedItem}
+            />
           </Card>
         </SoftBox>
       </SoftBox>
@@ -160,6 +171,3 @@ function WeldingEquipmentTables() {
 }
 
 export default WeldingEquipmentTables;
-
-
-

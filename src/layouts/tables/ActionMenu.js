@@ -8,9 +8,10 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import PropTypes from "prop-types";
 
-const ActionMenu = ({ onEdit, onDelete }) => {
+const ActionMenu = ({ onView, onEdit, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
@@ -33,6 +34,18 @@ const ActionMenu = ({ onEdit, onDelete }) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            onView();
+          }}
+        >
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" sx={{ color: "#0288d1" }} />
+          </ListItemIcon>
+          <ListItemText primary="Ko‘rish" />
+        </MenuItem>
+
         <MenuItem
           onClick={() => {
             handleClose();
@@ -62,6 +75,7 @@ const ActionMenu = ({ onEdit, onDelete }) => {
 };
 
 ActionMenu.propTypes = {
+  onView: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };

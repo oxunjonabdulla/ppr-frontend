@@ -14,7 +14,7 @@ import AddLatheMachineModal from "./AddLatheMachineModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
 import EditLatheMachineModal from "./EditLatheMachineModal";
-
+import ViewLatheMachineModal from "./ViewLatheMachineModal";
 
 function LatheMachineTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +35,22 @@ function LatheMachineTables() {
   const handleSuccess = () => {
     window.location.reload(); // or refresh data another way
   };
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewData, setViewData] = useState(null);
+
+  const handleView = (item) => {
+    axiosInstance
+      .get(`lathe_machine-detail/${item.id}/`)
+      .then((response) => {
+        setViewData(response.data.data);
+        setViewOpen(true);
+      })
+      .catch((error) => {
+        console.error("Tafsilotlarni olishda xatolik:", error);
+        alert("Ma'lumotlarni yuklab bo'lmadi.");
+      });
+  };
+
   const [editOpen, setEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const handleDelete = (item) => {
@@ -58,27 +74,29 @@ function LatheMachineTables() {
   };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
-    "Rasmi": item.image ? (
-      <ImageModal src={item.image} alt="rasm" />
-    ) : "-",
+    Rasmi: item.image ? <ImageModal src={item.image} alt="rasm" /> : "-",
     "Korxona nomi": item.company_name || "-",
     "Detal nomi": item.detail_name || "-",
     "Ishlab chiqarilgan sana": formatUzbekDate(item.manufacture_date),
     "Zavod raqami": item.factory_number || "-",
     "Ro'yxat raqami": item.registration_number || "-",
     "O'rnatilgan joyi": item.installation_location || "-",
-    "Holati": (
+    Holati: (
       <SoftBadge
         variant="gradient"
         badgeContent={
-          item.technical_condition === "working" ? "Soz" :
-            item.technical_condition === "faulty" ? "Nosoz" :
-              "Noma'lum"
+          item.technical_condition === "working"
+            ? "Soz"
+            : item.technical_condition === "faulty"
+            ? "Nosoz"
+            : "Noma'lum"
         }
         color={
-          item.technical_condition === "working" ? "success" :
-            item.technical_condition === "faulty" ? "error" :
-              "secondary"
+          item.technical_condition === "working"
+            ? "success"
+            : item.technical_condition === "faulty"
+            ? "error"
+            : "secondary"
         }
         size="xs"
         container
@@ -87,17 +105,17 @@ function LatheMachineTables() {
     "Mas'ul shaxs": item.responsible_person?.name || "-",
     "Konservatsiyaga olish": item.conservation_date ? formatUzbekDate(item.conservation_date) : "-",
     "Konservatsiya sababi": item.conservation_reason || "-",
-    "Tavsiyalar": item.recommendations || "-",
+    Tavsiyalar: item.recommendations || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
-    "Amallar": (
+    Amallar: (
       <ActionMenu
+        onView={() => handleView(item)}
         onEdit={() => handleEdit(item)}
         onDelete={() => handleDelete(item)}
       />
     ),
   });
-
 
   return (
     <DashboardLayout>
@@ -126,11 +144,18 @@ function LatheMachineTables() {
               />
             </SoftBox>
             <EditLatheMachineModal
-             open={editOpen}
+              open={editOpen}
               onClose={() => setEditOpen(false)}
               item={selectedItem}
               onSuccess={() => window.location.reload()}
             />
+            {viewData && (
+              <ViewLatheMachineModal
+                open={viewOpen}
+                onClose={() => setViewOpen(false)}
+                data={viewData}
+              />
+            )}
           </Card>
         </SoftBox>
       </SoftBox>
@@ -140,6 +165,3 @@ function LatheMachineTables() {
 }
 
 export default LatheMachineTables;
-
-
-

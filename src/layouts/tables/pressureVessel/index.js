@@ -13,9 +13,8 @@ import ImageModal from "../ImageModal";
 import AddPressureVesselModal from "./AddPressureVesselModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
-import EditLiftingCraneModal from "../liftingCrane/EditLiftingCraneModal";
 import EditPressureVesselModal from "./EditPressureVesselModal";
-
+import ViewPressureVesselModal from "./ViewPressureVesselModal";
 
 function PressureVesselTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +34,13 @@ function PressureVesselTables() {
   const handleModalOpen = () => setIsModalOpen(true);
   const handleSuccess = () => {
     window.location.reload(); // or refresh data another way
+  };
+  const [viewOpen, setViewOpen] = useState(false);
+
+  // handle
+  const handleView = (item) => {
+    setSelectedItem(item);
+    setViewOpen(true);
   };
   const [editOpen, setEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -59,27 +65,29 @@ function PressureVesselTables() {
   };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
-    "Rasmi": item.image ? (
-      <ImageModal src={item.image} alt="rasm" />
-    ) : "-",
+    Rasmi: item.image ? <ImageModal src={item.image} alt="rasm" /> : "-",
     "Korxona nomi": item.company_name || "-",
     "Detal nomi": item.detail_name || "-",
     "Ishlab chiqarilgan sana": formatUzbekDate(item.manufacture_date),
     "Zavod raqami": item.factory_number || "-",
     "Ro'yxat raqami": item.registration_number || "-",
     "O'rnatilgan joyi": item.installation_location || "-",
-    "Holati": (
+    Holati: (
       <SoftBadge
         variant="gradient"
         badgeContent={
-          item.technical_condition === "working" ? "Soz" :
-            item.technical_condition === "faulty" ? "Nosoz" :
-              "Noma'lum"
+          item.technical_condition === "working"
+            ? "Soz"
+            : item.technical_condition === "faulty"
+            ? "Nosoz"
+            : "Noma'lum"
         }
         color={
-          item.technical_condition === "working" ? "success" :
-            item.technical_condition === "faulty" ? "error" :
-              "secondary"
+          item.technical_condition === "working"
+            ? "success"
+            : item.technical_condition === "faulty"
+            ? "error"
+            : "secondary"
         }
         size="xs"
         container
@@ -89,14 +97,14 @@ function PressureVesselTables() {
     "Sig‘imning kategoriyasi": item.category_name || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
-    "Amallar": (
+    Amallar: (
       <ActionMenu
+        onView={() => handleView(item)}
         onEdit={() => handleEdit(item)}
         onDelete={() => handleDelete(item)}
       />
     ),
   });
-
 
   return (
     <DashboardLayout>
@@ -124,11 +132,16 @@ function PressureVesselTables() {
                 formattedRows={formattedRows}
               />
             </SoftBox>
-              <EditPressureVesselModal
-             open={editOpen}
+            <EditPressureVesselModal
+              open={editOpen}
               onClose={() => setEditOpen(false)}
               item={selectedItem}
               onSuccess={() => window.location.reload()}
+            />
+            <ViewPressureVesselModal
+              open={viewOpen}
+              onClose={() => setViewOpen(false)}
+              data={selectedItem}
             />
           </Card>
         </SoftBox>
@@ -139,6 +152,3 @@ function PressureVesselTables() {
 }
 
 export default PressureVesselTables;
-
-
-

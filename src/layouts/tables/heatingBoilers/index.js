@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Card from "@mui/material/Card";
 
 import SoftBox from "components/SoftBox";
@@ -17,6 +17,7 @@ import EditHeatingBoilerModal from "./EditHeatingBoilerModal";
 
 import axiosInstance from "../../../axiosConfig";
 import "layouts/tables/style.css";
+import ViewHeatingBoilerModal from "./ViewHeatingBoilerModal";
 
 function HeatingBoilersTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,6 +46,20 @@ function HeatingBoilersTables() {
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const handleSuccess = () => window.location.reload();
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewData, setViewData] = useState(null);
+  const handleView = (item) => {
+    axiosInstance
+      .get(`heating_boiler-detail/${item.id}/`)
+      .then((response) => {
+        setViewData(response.data.data);
+        setViewOpen(true);
+      })
+      .catch((error) => {
+        console.error("Tafsilotlarni olishda xatolik:", error);
+        alert("Ma'lumotlarni yuklab bo'lmadi.");
+      });
+  };
 
   const handleEdit = (item) => {
     setSelectedItem(item);
@@ -94,13 +109,16 @@ function HeatingBoilersTables() {
       />
     ),
     "Mas'ul shaxs": item.responsible_person?.name || "-",
-    "Qozon turi":
-      item.type === "heating_boiler" ? "Isitish qozoni" : item.type || "-",
+    "Qozon turi": item.type === "heating_boiler" ? "Isitish qozoni" : item.type || "-",
     "Yoqilg'i": item.fuel_type || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
     Amallar: (
-      <ActionMenu onEdit={() => handleEdit(item)} onDelete={() => handleDelete(item)} />
+      <ActionMenu
+        onView={() => handleView(item)}
+        onEdit={() => handleEdit(item)}
+        onDelete={() => handleDelete(item)}
+      />
     ),
   });
 
@@ -139,6 +157,13 @@ function HeatingBoilersTables() {
               item={selectedItem}
               onSuccess={handleSuccess}
             />
+            {viewData && (
+              <ViewHeatingBoilerModal
+                open={viewOpen}
+                onClose={() => setViewOpen(false)}
+                data={viewData}
+              />
+            )}
           </Card>
         </SoftBox>
       </SoftBox>

@@ -13,9 +13,8 @@ import ImageModal from "../ImageModal";
 import AddLiftingCraneModal from "./AddLiftingCraneModal";
 import ActionMenu from "../ActionMenu";
 import axiosInstance from "../../../axiosConfig";
-import EditLatheMachineModal from "../latheMachine/EditLatheMachineModal";
 import EditLiftingCraneModal from "./EditLiftingCraneModal";
-
+import ViewLiftingCraneModal from "./ViewLiftingCraneModal";
 
 function LiftingCraneTables() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,6 +35,14 @@ function LiftingCraneTables() {
   const handleSuccess = () => {
     window.location.reload(); // or refresh data another way
   };
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewItem, setViewItem] = useState(null);
+
+  const handleView = (item) => {
+    setViewItem(item);
+    setViewOpen(true);
+  };
+
   const [editOpen, setEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const handleDelete = (item) => {
@@ -59,31 +66,29 @@ function LiftingCraneTables() {
   };
   const formattedRows = (item) => ({
     "ID raqami": item.id,
-    "Rasmi": item.image ? (
-      <ImageModal src={item.image} alt="rasm" />
-    ) : "-",
+    Rasmi: item.image ? <ImageModal src={item.image} alt="rasm" /> : "-",
     "Korxona nomi": item.company_name || "-",
     "Detal nomi": item.detail_name || "-",
     "Ishlab chiqarilgan sana": formatUzbekDate(item.manufacture_date),
     "Zavod raqami": item.factory_number || "-",
     "Ro'yxat raqami": item.registration_number || "-",
     "O'rnatilgan joyi": item.installation_location || "-",
-    "Holati": (
+    Holati: (
       <SoftBadge
         variant="gradient"
         badgeContent={
           item.technical_condition === "working"
             ? "Soz"
             : item.technical_condition === "faulty"
-              ? "Nosoz"
-              : "Noma'lum"
+            ? "Nosoz"
+            : "Noma'lum"
         }
         color={
           item.technical_condition === "working"
             ? "success"
             : item.technical_condition === "faulty"
-              ? "error"
-              : "secondary"
+            ? "error"
+            : "secondary"
         }
         size="xs"
         container
@@ -94,14 +99,14 @@ function LiftingCraneTables() {
     "Kran eni uzunligi": item.crane_width_length || "-",
     "Qo'shilgan vaqti": formatUzbekDateTime(item.created_at),
     "Yangilangan vaqti": formatUzbekDateTime(item.updated_at),
-    "Amallar": (
+    Amallar: (
       <ActionMenu
+        onView={() => handleView(item)}
         onEdit={() => handleEdit(item)}
         onDelete={() => handleDelete(item)}
       />
     ),
   });
-
 
   return (
     <DashboardLayout>
@@ -130,10 +135,15 @@ function LiftingCraneTables() {
               />
             </SoftBox>
             <EditLiftingCraneModal
-             open={editOpen}
+              open={editOpen}
               onClose={() => setEditOpen(false)}
               item={selectedItem}
               onSuccess={() => window.location.reload()}
+            />
+            <ViewLiftingCraneModal
+              open={viewOpen}
+              onClose={() => setViewOpen(false)}
+              data={viewItem}
             />
           </Card>
         </SoftBox>
@@ -144,6 +154,3 @@ function LiftingCraneTables() {
 }
 
 export default LiftingCraneTables;
-
-
-
